@@ -6,12 +6,12 @@
         |                                                          |
         |              by Dave Roth <rothd@roth.net>               |
         |                                                          |
-        |                  version v960722 (hack)                  |
+        |                     version v961017                      |
         |                                                          |
         |                                                          |
         |                     ODBC.PM package                      |
         |                     ---------------                      |
-        |                     Release v960721                      |
+        |                     Release v961017                      |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -26,79 +26,18 @@
 
 
     ---------------------------------------------------------------------
-    CHECK OUT THE FAQ!!! HTTP://WWW.ROTH.NET/USERS/ROTHD/PERL/ODBCFAQ.HTM
+        CHECK OUT THE FAQ!!! HTTP://WWW.ROTH.NET/ODBC/ODBCFAQ.HTM
     ---------------------------------------------------------------------
 
 
  This is a hack of Dan DeMaggio's <dmag@umich.edu> NTXS.C ODBC implimentation.
- I have recoded and restructered much of it including most of the ODBC.PM
- package but its core is still based on Dan's code (thanks Dan!).
-
-ODBC.PM HISTORY:
----------------
-96.04.07 Joseph L. Casadonte Jr. <joc@netaxs.com>
-         -Modified Data() to accept multiple field names
-          and return an array or scalar.
-         -Confirm Win95 compliance.
-         -Various bug fixes.
-96.04.10 Dave Roth <rothd@roth.net>
-         -Fixed the RowCount() to default to the current connection.
-96.04.15 Dave Roth <rothd@roth.net>		
-		 -Changed version numbers to a date format.
-96.05.07 Dave Roth <rothd@roth.net>
-         -Fixed Data(): If returning an array, the array consisted of
-          the requested fieldnames + the values. Now only returns the
-          values. Thanks to Dan Westerlund <westerlund@dkraft.se>!
-96.05.11 Dave Roth <rothd@roth.net>
-		 -Corrected SetStmtCloseType(): it was using the CloseType as
-		  if it was a ConnectionNumber instead.
-96.07.22 Brian Dunfordshore <Brian_Dunfordshore@bridge.com>
-         -Added MoreResults().
+ I have recoded and restructered most of it including most of the ODBC.PM
+ package but its very core is still based on Dan's code (thanks Dan!).
 
 
-ODBC.PLL HISTORY:
-----------------
-96.04.10 Dave Roth <rothd@roth.net>
-         -Fixed a "memory bug": we were using SQL_CLOSE when closing
-          an ODBC statement. This kept the cursor alive in memory so
-          it can be cached in the event the same SQL statement is issued.
-          We are now using SQL_DROP. This may lessen speed if the same
-          SQL statements are issued again and again per connection.
-         -Cleaned up some code.
-96.04.12 Dave Roth <rothd@roth.net>
-         -Added G/SetStmtCloseType() functions.
-         -Added some constants.
-96.04.13 ** We now are trying to include a version for builds up to and
-		 including 105 and another for builds 106 and greater (for now).
-96.04.15 Jutta M. Klebe <jmk@exc.bybyte.de>
-         -Fix Bug in ODBCFetchRow(): when retrieving a field with a NULL 
-          value the value from the previous field was reported.
-		 -Changed version numbers to a date format.
-96.04.22 Jutta M. Klebe <jmk@exc.bybyte.de>
-         -Fix the SDWORD wrap-around bug in ODBCFetchRow(): when a column of
-		  size  2147483647 adding 1 (for a NULL byte in szBuf) yields
-		  (-2147483648) (not easy to "net UCHAR (-2147483648)"!!)
-96.04.22 Dave Roth <rothd@roth.net>
-		 -Inspired by Jutta, I have increased the max limit for SetMaxBufSize()
-		  to 2,147,483,647 bytes.
-96.05.03 Dave Roth <rothd@roth.net>
-		 -Set the lowest allocated char array to be 20 bytes in ODBCFetchRow().
-		  Evidentally sometimes the ODBC manager will report too few chars 
-		  that are needed to represent an autonumber field.
-96.05.08 Dave Roth <rothd@roth.net>
-		 -Convert all results from ODBCTableList() to uppercase since different
-		  ODBC drivers impliment this differently (some uppercase some lower).
-		  Thanks again to Jutta M. Klebe <jmk@exc.bybyte.de>
-		  *** This patch is open for suggestions!!! ***
-96.05.13 Mike Knister <knister@sierra.net>
-		 -Change SQL_COLUMN_LENGTH to SQL_COLUMN_DISPLAY_SIZE in the SQLColAttributes()
-		  line withing ODBC_Fetch(). This was returning the number of bytes needed
-		  to represent the C data type for the particular column. We need it to
-		  return the number of bytes needed to represent an ASCII version of the value
-		  held within the data type.
-96.07.22 Brian Dunfordshore <Brian_Dunfordshore@bridge.com>
-         -Added ODBCMoreResults().
-        
+ The history of this extension is found in the HISTORY.TXT file that comes
+ with the archive.
+
 
 Following in tradition...
 *****************************************************************************
@@ -108,34 +47,34 @@ Following in tradition...
 *****************************************************************************
 
         ----------------------------------------------------------------
-NOTICE: I do not guarantee ANYTHING  with this package. If you use it
-        you are doing so AT YOUR OWN RISK! I may or may not support this
-        depending on my time schedule and I am neither an SQL or ODBC
-        guru so do not ask me questions regarding them!
+NOTICE: I do not guarantee ANYTHING with this package. If you use it you
+        are doing so AT YOUR OWN RISK! I may or may not support this
+        depending on my time schedule and I am neither an ODBC nor SQL
+        guru so don't ask me questions regarding them!
+
+        This extension assumes that you are familiar with ODBC or have
+        access to documentation on the ODBC API 2.0 or higher.
         ----------------------------------------------------------------
 
 
-I compiled this using MSVC++ 2.2 on an Intel machine. I do not have access to
-other platforms to compile on so I will not be doing so. If someone else does,
-all the best!
+I compiled this using MSVC++ 2.2 on an Intel Pentium machine. I do not have
+access to other platforms to compile on so I will not be doing so. If someone
+else does I will gladly post them at FTP.ROTH.NET.
 
 
+============ Benefits ============
 What is the deal with this?
     - The number of ODBC connections are limited by memory and ODBC itself
       (have as many as you want!)
-
     - The working limit to the size of a field is 10240 bytes but you can
       increase that limit (if needed) to a max of 2147483647. You can always
       recompile to increase the max limit.
-
     - You can open a connection by either specifing a DSN or a connection
       string!
-
     - You can open and close the connections in any order!
-
     - Other things that I can not think of right now.... :)
 
-
+============ Known Problems ============
 What known problems does this thing have?
     - If the account that the process runs under does not have write permission
       on the default directory (for the process not the ODBC DSN) you will
@@ -147,37 +86,53 @@ What known problems does this thing have?
     - This has not been neither optimized for speed nor optimized for memory
       consumption.
 
+============ TESTING ============
+To test out this extension, install it then run the TEST.PL included with this
+archive...
+  - This version of Win32::ODBC comes with a little database of trivial, non
+    sensible data in MS Access 7.0 format. If you have the proper driver 
+	installed, the test.pl will create a temporary DSN that points to this
+	database and performs its tests on it. The temporary DSN is removed at the
+	end of the test cycle.
+  - If you want to run the test.pl against another DSN that you already have
+    created
+    then run the test.pl but specify your DSN (see syntax below).
+  - You can limit the number of records that are retrieved during the test
+    (assuming that the ODBC driver you use conforms to proper ODBC API
+    standards). Specify after your DSN name the number of records to display.
+    The default number of records is 15.
+
+	Syntax:
+        perl test.pl [[DSN Name] #OfRecords]
+
+             DSN Name.......The DSN name of your choice (must have been pre
+                            configured)
+             #OfRecords.....If you specify a DSN you can also specify how
+                            many records to display.
 
 
-To test out this ODBC.PLL, install it then run the TEST.PL included with this
-archive. You must first, however alter TEST.PL:
-    - The second line of code ($DSN="xxx"), replace the xxx with a real
-      DSN that is on your system.
++----------------------------------------------------------------------------+
+|   I use a directory structure of \Perl\lib for my library files and this   |
+|   doc is assuming you do too. You will, of course, have to compensate for  |
+|   deviations.                                                              |
++----------------------------------------------------------------------------+
 
-
-
-** I use a directory structure of \Perl\lib for my library files and this doc is
-** assuming you do too. You will, of course, have to compensate for deviations.
-
-
-    T O   I N S T A L L   T H I S   B E A S T :
-    =========================================
+   T O   I N S T A L L   T H I S   B E A S T :
+   =========================================
 
 1) You will need to dump the ODBC.PM file into the \PERL\LIB\WIN32\ directory.
 
 2) There has been a change since version v960721: I am no longer supporting
    versions for the Win32 Perl build 105 (and lower). If you still use such
-   a young build, consider updating or recompile on your own.
+   a young build of Perl, consider updating it or recompile Win32::ODBC on your own.
 
    You need to copy the ODBC.PLL file into the \PERL\LIB\AUTO\WIN32\ODBC\
    directory.
 
    ---------------------------------------------------------
-If you already have another package \PERL\LIB\ODBC.PM (notice the path does NOT
-include Win32) you do not need it for this!!!
 
-To use this you need to define a DSN (Data Source Name) and have all the stuff
-you need to use it (ie. proper ODBC drivers, database file, etc).
+To use this Win32::ODBC you need to define a DSN (Data Source Name) and have
+all the stuff you need to use it (ie. proper ODBC drivers, database file, etc).
 
 You are now ready to ODBC all over town!
 
@@ -218,101 +173,213 @@ MAKE SURE that you close you connection when you are finished:
     =================================
 
 The ODBC.PM Package supports the following functions:
+	(* indicates a new or modified function for this version)
 
-
-Catalog($Qualifier, $Owner, $Name, $Type)
+ Catalog($Qualifier, $Owner, $Name, $Type)
     Tells ODBC to create a data set that contains table information about
     the DSN.
+	Use Fetch() and Data() or DataHash() to retrieve the data.
     The returned format is:
             [Qualifier] [Owner] [Name] [Type]
     returns: TRUE if error.
 
-ColAttributes($Attribute, [@FieldNames])
+ ColAttributes($Attribute, [@FieldNames])
 	Returns the attribute $Attribute on each of the fields @FieldNames in
 	the current record set.
 	If @FieldNames is empty then all fields are assumed.
 	returns: associative array of attributes.
 
-Connection()
+*ConfigDSN($Option, $Driver, ($Attribute1 [, $Attribute2, $Attribute3, ...]))
+	Configures a DSN. You can specify 3 different options:
+		ODBC_ADD_DSN.......Adds a new DSN.
+		ODBC_MODIFY_DSN....Modifies an existing DSN.
+		ODBC_REMOVE_DSN....Removes an existing DSN.
+    You must specify the $Driver (which can be retrieved by using
+    DataSources() or Drivers()).
+    $Attribute1 *should* be "DSN=xxx" where xxx is the name of the DSN. Other
+    attributes can be any DSN attribute such as:
+		"UID=Cow"
+		"PWD=Moo"
+		"Description=My little bitty Data Source Name"
+
+    -If you use ODBC_ADD_DSN, then you must include at least the "DSN=xxx" and
+     the location of the database (ie. for MS Access databases you must specify
+     the DatabaseQualifier: "DBQ=c:\\...\\MyDatabase.mdb").
+    -If you use ODBC_MODIFY_DSN, then you need only to specify the the
+     "DNS=xxx" attribute. Any other attribute you include will be changed to
+     what you specify.
+    -If you use ODBC_REMOVE_DSN, you only need to specify the "DSN=xxx"
+     attribute.
+	returns: TRUE.....successful
+	         FALSE....failure
+
+ Connection()
     Returns the connection number associated with the ODBC connection.
     returns: Number identifying an ODBC connection
 
-Close()
+ Close()
     Closes the ODBC connection.
     returns: Nothing.
 
-Data($ColName)
-    Returns the contents of column name $ColName or the current row.
+ Data([$FieldName])
+    Returns the contents of column name $FieldName or the current row (if
+    nothing is specified).
     returns: String.
 
-DataSources()
+ DataHash([$Field1, $Field2, $Field3, ...])
+    Returns the contents for $Field1, $Field2, ... or the entire row (if
+    nothing is specified) into an associative array consisting of:
+    {Field Name}=>Field Data
+	returns: Associative array with keys = Field Names and values = Field Data.
+
+*DataSources()
     Returns an associative array of Data Sources and ODBC remarks about them.
     They are returned in the form of:
-        $ArrayName{'DSN'}=Remark
-    Where DSN is the Data Source Name and Remark is, well, the remark.
+        $ArrayName{'DSN'}=Driver
+    Where DSN is the Data Source Name and ODBC Driver used.
     returns: Associative array.
 
-Drivers()
-    Returns an associative array of ODBC Driverss and thier attributes.
+*Debug([1|0])
+    Sets the debug option to on or off. If nothing is specified then
+    nothing is changed.
+	returns: The debugging value (1 or 0)
+	 
+ Drivers()
+    Returns an associative array of ODBC Drivers and thier attributes.
     They are returned in the form of:
         $ArrayName{'DRIVER'}=Attrib1;Attrib2;Attrib3;...
     Where DRIVER is the ODBC Driver Name and AttribX are the driver defined
     attributes.
     returns: Associative array.
 
-DumpData()
+*DropCursor()
+    Drops the cursor associated with the ODBC object. This forces the
+    cursor to be deallocated.
+    This overrides SetStmtCloseType() but the ODBC object does not lose
+    the StmtCloseType setting.
+    returns....TRUE if successful.
+               FALSE if not successful.
+
+ DumpData()
     Dumps to the screen the fieldnames and all records of the current data
     set. This is used primarily for debugging.
     returns: Nothing
 
-Error()
-    Returns the last encountered error.
-    returns: String.
+*Error()
+    Returns the last encountered error. The returned value is context dependent. If
+	it is called in a scalar context a 3 element array is returned:
+		($ErrorNumber, $ErrorText, $ConnectionNumber)
+	if called in a string context a string is returned:
+		"[$ErrorNumber] [$ConnectionNumber] [$ErrorText]"
+	If debugging is on then two more variables are returned:
+		(..., $Function, $Level)
+			$Function = $Function name the error occured in.
+			$Level = Extra information about the error (usually the location of the error)
+    returns: Array or String.
 
-FetchRow()
-    Retrieves the next record from the dataset.
-    returns: TRUE
+ FetchRow([$Row [, $Type]])
+    Retrieves the next record from the keyset.
+    When $Row and/or $Type are specified the call is made using
+    SQLExtendedFetch() instead of SQLFetch().
 
-FieldNames()
+    NOTE: If you are unaware of SQLExtendedFetch() and it's implications
+          stay with just regular FetchRow() with no parameters.
+    NOTE: The ODBC API explicitly warns against mixing calls to SQLFetch()
+          and SQLExtendedFetch(); use one or the other but not both.
+
+    If $Row is specified it moves the keyset RELATIVE $Row number of rows.
+    If $Row is specified and $Type is not then the type used is RELATIVE.
+    returns: TRUE...There is a record to read.
+	         FALSE..There are no more records to read.
+
+ FieldNames()
     Returns an array of fieldnames found in the current data set. There is
     no guarantee on order.
     returns: Array of field names.
 
-GetConnections()
+ GetConnections()
     Returns an array of connection numbers showing what connections are
     currently open.
     returns: Array of connections
 
-GetStmtCloseType([$Connection])
+*GetConnectOption($Option)
+    Returns the value of the specified connect $Option. Refer to ODBC
+    documentation for more information on the options and values.
+	returns: String or Scalar depending upon the option specified.
+
+*GetCursorName()
+    Returns the name of the current cursor.
+    returns: String or undef.
+
+*GetData()
+    Retrieves the current row from the dataset. This is not generally
+    used by users, it is used internally.
+    returns: Array of field data where the first element is either:
+            ...TRUE....NOT successful.
+            ...FALSE...successful
+
+*GetDSN([$DSN])
+    Returns the configuration for the specified DSN.
+    If no DSN is specified then the current connection is used.
+    The returning associative array consists of
+    keys=DSN keyword; values=Keyword value.
+        $Data{$Keyword}=Value
+    returns: Associative array.
+
+*GetFunctions([$Function1, $Function2, ...])
+    Returns an associateive array of indicating the ODBC Drivers ability to
+    support specified functions.
+    If no functions are specifed then a 100 element associative array is
+    returned containing all possible functions and their values.
+	$Function must be in the form of an ODBC API constant like:
+		SQL_API_SQLTRANSACT
+	The returned array will contain the results like:
+		$Results{SQL_API_SQLTRANSACT}=Value
+	Example:
+        $Results = $O->GetFunctions($O->SQL_API_SQLTRANSACT, SQL_API_SQLSETCONNECTOPTION)
+		$ConnectOption = $Results{SQL_API_SQLSETCONNECTOPTION};
+		$Transact = $Results{SQL_API_SQLTRANSACT};
+	returns: Sssociative array.
+
+*GetInfo($Option)
+	Returns the value of the particular option specified.
+	returns: Scalar or String.
+
+ GetMaxBufSize()
+    This will report the current allocated limit for the MaxBufSize. For info
+    see SetMaxBufSize().
+    returns: Max number of bytes.
+
+ GetStmtCloseType([$Connection])
     Returns the type of closure that will be used everytime the hstmt is freed.
     See SetStmtClsoeType() for details.
     By default, the currect object's connection will be used. If $Connection
     is a valid connection number, then it will be used.
     returns: String.
 
-GetDSN($Con)
-    Returns the DSN that was used during the creation of the connection ($Con).
-    If $Con is not passed then it assumes the current connection.
-    returns: String.
+*GetStmtOption($Option)
+    Returns the value of the specified statement $Option. Refer to ODBC
+    documentation for more information on the options and values.
+	returns: String or Scalar depending upon the option specified.
 
-GetMaxBufSize()
-    This will report the current allocated limit for the MaxBufSize. For info
-    see SetMaxBufSize().
-    returns: Max number of bytes.
-
-MoreResults()
+ MoreResults()
 	This will report whether or not there is data yet to be retrieved from the
 	query. This can happen if the query was a multiple select 
-	(eg: "SELECT * FROM [foo] SELECT * FROM [bar]")
+		(eg: "SELECT * FROM [foo] SELECT * FROM [bar]")
+   *** NOTE: Not all drivers support this.
 	returns: 1 if there is more data
 	         undef if there is no more data
 
-new($DSN)
+*new($DSN [, ($Option1, $Value1), ($Option2, $Value2) ...])
     Creates a new ODBC connection based on $DSN.
     $DSN = Data Source Name or a proper ODBCDriverConnect string.
-    returns: Not true if it failed.
+	You can specify SQL Connect Options that are implimented before the actual
+    connection to the DSN takes place. These option/values are the same
+    specified in Get/SetConnectOption() (see below) and are defined in the ODBC
+    API specs.
+    returns: Undef if it failed.
 
-RowCount($Connection)
+ RowCount($Connection)
     For UPDATE, INSERT, and DELETE statements the returned value is the number
     of rows affected by the request or -1 if the number of affected rows is
     not available.
@@ -326,12 +393,29 @@ RowCount($Connection)
     returns: Number of affected rows or -1 if not supported by driver in the
              current context.
 
-Run($Sql)
+ Run($Sql)
     This will execute the $Sql command and dump to the screen info about it.
     This is used primarily for debugging.
     returns: Nothing
 
-SetMaxBufSize($Size)
+*SetConnectOption($Option)
+    Sets the value of the specified connect $Option. Refer to ODBC
+    documentation for more information on the options and values.
+	returns: TRUE....change was successful
+	         FALSE...change was not successful
+
+*SetCursorName($Name)
+    Sets the name of the current cursor.
+    returns: TRUE....successful
+             FALSE...not successful
+
+*SetPos($Row [, $Option, $Lock])
+    Moves the cursor to the row $Row within the current keyset (not the current
+    data/result set).
+    returns: TRUE....successful
+             FALSE...not successful
+
+ SetMaxBufSize($Size)
     This will set the MaxBufSize for a particular connection.
     This will most likely never be needed but...
     The amount of memory that is allocated to retrieve a records field data
@@ -340,10 +424,11 @@ SetMaxBufSize($Size)
     a bit much so there is an imposed limit (2,147,483,647 bytes) that can be 
     allocated for data retrieval. Since it is possible that someone has a 
     database with field data greater than 10240 you can use this function to 
-    increase the limit up to a ceiling of 2147483647 (recompile if you need more).
+    increase the limit up to a ceiling of 2,147,483,647 (recompile if you need
+    more).
     returns: Max number of bytes.
 
-SetStmtCloseType($Type [, $Connection])
+ SetStmtCloseType($Type [, $Connection])
     This will set a particular hstmt close type for the connection. This is
     the same as ODBCFreeStmt(hstmt, $Type).
     By default, the currect object's connection will be used. If $Connection
@@ -356,103 +441,46 @@ SetStmtCloseType($Type [, $Connection])
     Returns the newly set type.
     returns: String.
 
-ShutDown()
+*SetStmtOption($Option)
+    Sets the value of the specified statement $Option. Refer to ODBC
+    documentation for more information on the options and values.
+	returns: TRUE.....change was successful.
+	         FALSE....change was not successful.
+
+ ShutDown()
     This will close the ODBC connection and dump to the screen info about it.
     This is used primarily for debugging.
     returns: Nothing
 
-Sql($SQLString)
+ Sql($SQLString)
     Executes the SQL command $SQLString on a particular connection.
     returns: Error number if it failed
 
-TableList($Qualifier, $Owner, $Name, $Type)
+ TableList($Qualifier, $Owner, $Name, $Type)
     Returns the catalog of tables that are availabe in the DSN.
     If you do not know what the parameters are just leave them "".
     returns: Array of table names.
 
-Version(@Packages)
+*Transact($Type)
+	Forces the ODBC connection to perform a Rollback or Commit transaction.
+	$Type may be:
+		SQL_COMMIT
+		SQL_ROLLBACK
+	*** NOTE: This only works with ODBC Drivers that support transactions.
+	          Your Driver supports it if TRUE is returned from:
+			       $O->GetFunctions($O->SQL_API_SQLTRANSACT)[1]
+				   (see GetFunctions for more details)
+	returns: TRUE....success.
+	         FALSE...failure.
+
+ Version(@Packages)
 	Returns the version numbers for the requested packages ("ODBC.PM" or
 	"ODBC.PLL"). If @Packages is empty then all version numbers will be
 	returned.
 	returns: Array of version numbers.
 
-======================= Example of Use =======================================
 
-    use Win32::ODBC;
-    uses CGI;
+======================================
+	See the test.pl file for an example of Win32::ODBC's usage.
 
-    $Cgi = new CGI;
-
-    $| = 1;
-
-    $Template = "Template";
-
-    print "Content-type: text/html\n\n<HTML>\n<HEAD>\n<TITLE>An ODBC Test</TITLE>\n</HEAD>\n<BODY>";
-
-    ($DSN, $Table) = ($Cgi->param('Table') =~ /(\S*)\s*(\S.*)/);
-
-    $Table =~ s/\s*(\S.*)(\s|\n|\x0a|\x0d)*$/$1/gi;
-    $DSN =~ s/\s*(\S.*)(\s|\n|\x0a|\x0d)*$/$1/gi;
-    ($Num = $Cgi->param('ID')) =~ s/[\s|-|\.]//gi;
-
-    if ($DSN eq "" | $Table eq ""){
-        $Message = "Your Table or DSN was invald. This may be because you have
-                    not specified them or you have a bad browser. You may want to
-                    try another browser.<p>";
-
-        print "$Message\n</BODY>\n</HTML>";
-        Log("Error: DSN or Table is blank");
-        exit();
-    }
-
-    $O = new Win32::ODBC("$DSN");
-    if (!$O){
-        $Message = "The $DSB database is currently unavailable. Try again later.";
-        print "$Message\n</BODY>\n</HTML>";
-        Log("Error: Could not connect; ODBC error during connection");
-        exit();
-    }
-
-    $Sql = "SELECT *
-            FROM [$Table] ";
-
-    if (! $O->Sql($Sql)){
-        print "<p>\n<pre>";
-
-        foreach $Key ($O->FieldNames){
-            print $O->Data($Key), "  ";
-            $Line .= "-" x length($Key) . "  ";
-        }
-        print "\n$Line\n";
-        if ($O->FetchRow()){
-            foreach $Key ($O->FieldNames){
-                print $O->Data($Key), "  ";
-            }
-
-            $Result = "Successful";
-        }else{
-            $Result = "Unsuccessful";
-        print "</pre>\n</BODY>\n</HTML>";
-       }
-    }else{
-          $Message = "The database seems to be down. Try again later.";
-        print "$Message\n</BODY>\n</HTML>";
-          $Result = "Error: " . $O->error;
-    }
-
-    $O->Close();
-
-    Log($Result);
-
-
-
-sub Log{
-    local($Result) = @_;
-    if (open(LOG, ">> TEST.log")){
-        print LOG $Cgi->remote_addr(), " \"", $Cgi->user_agent(), "\"  \"$DSN\" \"$Table\" \"$Num\" \"$Result\"\n";
-        close(LOG);
-    }
-}
-
-
-
+Last Modified 96.10.16
