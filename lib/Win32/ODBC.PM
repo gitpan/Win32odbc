@@ -5,7 +5,7 @@ package Win32::ODBC;
 #       |                                                          |
 #       |                     ODBC.PM package                      |
 #       |                     ---------------                      |
-#       |                    Release v96.05.28                     |
+#       |                    Release v96.07.22                     |
 #       |                                                          |
 #       |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
 #       |   This program is free software; you can redistribute    |
@@ -25,7 +25,8 @@ package Win32::ODBC;
 require Exporter;
 require DynaLoader;
 
-$Win32::ODBC::Version = 960528;
+$ODBCPackage = "Win32::ODBC";
+$ODBCPackage::Version = 960722;
 
 @ISA= qw( Exporter DynaLoader );
     # Items to export into callers namespace by default. Note: do not export
@@ -66,20 +67,19 @@ $Win32::ODBC::Version = 960528;
     # ----------------------------------
     # Notes:
     #   It is *NOT* Perl-DBI compliant.
-    #   Not tested _extremely_ well.
-    #   NEW LIMIT: 10K chars per column.
     # ----------------------------------
 
 
 sub new
 {
-    my ($n, $Err, $Errtext, $self);
+    my ($n, $self);
     my ($type) = shift;
-
     my ($DSN) = shift;
-    ($n,$Err,$Errtext) = ODBCConnect($DSN);
+
+    ($n, $ErrNum, $ErrText) = ODBCConnect($DSN);
     if (!$n){
-        return (0, $Err, $Errtext);
+        SetError($ErrNum, $ErrText);
+        return undef;
     }
     $self = bless {};
     $self->{'connection'} = $n;
@@ -97,7 +97,7 @@ sub Close
     undef $self->{'DSN'};
     undef @{$self->{'fnames'}};
     undef %{$self->{'field'}};
-    undef $self->{'error'};
+    SetError($self, 0, "Successful Close");
     return undef;
 }
 
@@ -111,21 +111,21 @@ sub DESTROY
 }
 
 
-sub Sql{
-    return (sql(@_));
+sub sql{
+    return (Sql(@_));
 }
 
 ####
 #   Submit an SQL Execute statement for processing
 ####
-sub sql
+sub Sql
 {
     my ($self) = shift;
     my ($sql) = shift;
     my (@Results);
 
     undef %{$self->{'field'}};
-    undef $self->{'error'};
+    ClearError($self);
 
     @Results = ODBCExecute($self->{'connection'},$sql);
     return updateResults($self, @Results);
@@ -190,15 +190,33 @@ sub fetchrow{
 
     $sqlcode = shift(@Result);
     if ($sqlcode){
-        $self->{'error'} = shift(@Result);
+        SetError($self, $sqlcode, $Result[0]);
         return undef;
     }
+    ClearError();
     foreach $item (@Result){
         $item =~ s/ +$//; # HACK
         $self->{'data'}->{ ${$self->{'fnames'}}[$num] } = $item;
         $num++;
     }
         #   return is a hack to interface with a assoc array.
+    return wantarray? (1, 1): 1;
+}
+
+####
+#   See if any more ODBC Result Sets
+#		Added by Brian Dunfordshore <Brian_Dunfordshore@bridge.com> 
+#		96.07.10
+####
+sub MoreResults{
+    my ($self) = @_;
+    my (@Results);
+
+    @Results = ODBCMoreResults($self->{'connection'});
+    if (@Results[0]){
+		SetError($self, @Results);
+        return undef;
+    }
     return wantarray? (1, 1): 1;
 }
 
@@ -210,13 +228,13 @@ sub updateResults{
     my ($sqlcode);
 
     undef %{$self->{'field'}};
-    undef $self->{'error'};
+    ClearError($self);
 
     @{$self->{'fnames'}} = @_;
 
     $sqlcode = shift(@{$self->{'fnames'}});
     if ($sqlcode){
-        $self->{'error'} = ${$self->{'fnames'}}[0];
+        SetError($self, $sqlcode, ${$self->{'fnames'}}[0]);
         return ($sqlcode);
     }
     foreach (0..$#{$self->{'fnames'}}){
@@ -238,7 +256,7 @@ sub updateResults{
 sub processError{
     my($self, $Error, @Result) = @_;
     if ($Error){
-        $self->{'error'} = $Result[0];
+        SetError($self, $Result[0], $Result[1]);
         undef @Result;
     }
     return @Result;
@@ -279,22 +297,59 @@ sub TableList{
     return sort(@Results);
 }
 
-sub Error{
-    return (error(@_));
-}
+
 ####
 #   Return the last recorded error message
 ####
-sub error { $_[0]->{'error'}; }
+sub error{
+    return (Error(@_));
+}
+
+sub Error{
+    my($self) = @_;
+    if(ref($self)){
+        return (wantarray)? ($self->{'ErrNum'}, $self->{'ErrText'}, $self->{'connection'}):"[$self->{'ErrNum'}] [$self->{'connection'}] \"$self->{'ErrText'}\"";
+    }
+    return (wantarray)? ($ErrNum, $ErrText, $ErrConn):"[$ErrNum] [$ErrConn] \"$ErrText\"";
+}
+
+sub SetError{
+    my($self, $Num, $Text, $Conn) = @_;
+    if (ref $self){
+        $self->{'ErrNum'} = $Num;
+        $self->{'ErrText'} = $Text;
+        $Conn = $self->{'connection'} if ! $Conn;
+    }else{
+        $Text = $Num;
+        $Num = $self;
+        $Conn = 0;
+    }
+    $ErrNum = $Num;
+    $ErrText = $Text;
+    $! = $Text;
+    $ErrConn = $Conn;
+}
+
+sub ClearError{
+    my($self, $Num, $Text) = @_;
+    if (ref $self){
+        undef $self->{'ErrNum'};
+        undef $self->{'ErrText'};
+    }else{
+        undef $ErrConn;
+        undef $ErrNum;
+        undef $ErrText;
+    }
+}
 
 
-sub FieldNames{
-    return (fieldnames(@_));
+sub fieldnames{
+    return (FieldNames(@_));
 }
 ####
 #   Return an array of fieldnames extracted from the current dataset
 ####
-sub fieldnames { $self = shift; return @{$self->{'fnames'}}; }
+sub FieldNames { $self = shift; return @{$self->{'fnames'}}; }
 
 ####
 #   Prints out the current dataset (used mostly for testing)
@@ -322,6 +377,26 @@ sub DumpData {
             print "\n";
         }
     }
+}
+
+sub DumpError{
+    my($self) = @_;
+    my($ErrNum, $ErrText, $ErrConn);
+    my($Temp);
+
+    print "\n---------- Error Report: ----------\n";
+    if (ref $self){
+        ($ErrNum, $ErrText, $ErrConn) = $self->Error();
+        ($Temp = $self->GetDSN()) =~ s/.*DSN=(.*?);.*/$1/i;
+        print "Errors for \"$Temp\" on connection " . $self->{'connection'} . ":\n";
+    }else{
+        ($ErrNum, $ErrText, $ErrConn) = Error();
+        print "Errors for the package:\n";
+    }
+
+    print "Connection Number: $ErrConn\nError number: $ErrNum\nError message: \"$ErrText\"\n";
+    print "-----------------------------------\n";
+
 }
 
 ####

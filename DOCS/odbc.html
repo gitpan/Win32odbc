@@ -58,6 +58,7 @@
 		<LI><A HREF="object.html#DataHash">DataHash()</A>
 		<LI><A HREF="object.html#DataSources">DataSources()</A>
 		<LI><A HREF="object.html#Drivers">Drivers()</A>
+		<LI><A HREF="object.html#DumpError">DumpError()</A>
 		<LI><A HREF="object.html#DumpData">DumpData()</A>
 		<LI><A HREF="object.html#Error">Error()</A>
 		<LI><A HREF="object.html#FetchRow">FetchRow()</A>
@@ -66,6 +67,7 @@
 		<LI><A HREF="object.html#GetDSN">GetDSN()</A>
 		<LI><A HREF="object.html#GetStmtCloseType">GetStmtCloseType()</A>
 		<LI><A HREF="object.html#GetMaxBufSize">GetMaxBufSize()</A>
+		<LI><A HREF="object.html#MoreResults">MoreResults()</A>
 		<LI><A HREF="object.html#new">new()</A>
 		<LI><A HREF="object.html#RowCount">RowCount()</A>
 		<LI><A HREF="object.html#Run">Run()</A>
@@ -92,7 +94,7 @@
 <H2><A NAME="Business">Business Stuff</A></H2>
 ODBC extension for Win32 PERL<BR>
 Version 96.05.08<BR>
-by Dave Roth (rothd@infowire.com)<BR>
+by Dave Roth (rothd@roth.net)<BR>
 <BR>
 Based on code by Dan DeMaggio (dmag@umich.edu) -- Thanks Dan!<BR>
 <P>
@@ -139,6 +141,19 @@ and I am neither an SQL or ODBC guru so do not ask me questions regarding them!
 		the array consisted of the requested fieldnames + the values. Now only
 		returns the values. Thanks to Dan Westerlund
 		&lt;westerlund@dkraft.se&gt;! (rothd)</TD></TR>
+	<TR><TD>96.07.22</TD>
+		<TD>Added <A HREF="object.html#MoreResults">MoreResults()</A>: Checks to
+		see if there are any more records that have not been retrieved. (dunfordshore)</TD></TR>
+	<TR><TD>96.07.22</TD>
+		<TD>Changed <A HREF="object.html#Error">Error()</a>: Errors are tracked differently now.
+		Any error will record the error number ($ErrNum) and error text ($ErrText) in the 
+		object's name space and can be retrieved by calling $Database->Error(). Error() will also
+		return the ODBC connection number that caused the error. If the context of
+		the call is not an array then a string with this information will be returned.
+		The Win32::ODBC name space will always have the last error info made, even if it is an
+		error returned by the new method. You can call Win32::ODBC::Error() to get that. 
+		(rothd)</TD></TR>
+		
 </TABLE>
 <P>
 
@@ -180,15 +195,19 @@ and I am neither an SQL or ODBC guru so do not ask me questions regarding them!
 		  ODBC drivers impliment this differently (some uppercase some lower).
 		  Thanks again to Jutta M. Klebe. (rothd)<BR>
 		  *** This patch is open for suggestions!!! ***</TD></TR>
+	<TR><TD>96.07.22</TD>
+		<TD>Added ODBCMoreResults()</A>: Checks to see if there are any more records 
+		that have not been retrieved. (dunfordshore)</TD></TR>
 </TABLE>
 <P>
 
 <STRONG><A NAME="Authors">Author List</A></STRONG><BR>
 <TABLE BORDER=1>
 	<TR><TH>Abbreviation</TH><TH>Name</TH><TH>EMail</TH></TR>
-	<TR><TD>rothd</TD><TD>Dave Roth</TD><TD>rothd@infowire.com</TD></TR>
+	<TR><TD>rothd</TD><TD>Dave Roth</TD><TD>rothd@roth.net</TD></TR>
 	<TR><TD>joc</TD><TD>Joe Casadonte</TD><TD>joc@netaxs.com</TD></TR>
 	<TR><TD>jmk</TD><TD>Jutta M. Klebe</TD><TD>jmk@exc.bybyte.de</TD></TR>
+	<TR><TD>dunfordshore</TD><TD>Brian Dunfordshore</TD><TD>brian_dunfordshore@bridge.com</TD></TR>
 </TABLE>
 <P>
 
@@ -244,7 +263,7 @@ and I am neither an SQL or ODBC guru so do not ask me questions regarding them!
 <HR ALIGN=center>
 
 <H2><A NAME="Bugs">Bug Reports</A></H2>
-Please send bug reports to <A HREF="mailto:rothd@infowire.com">Dave Roth</A>.
+Please send bug reports to <A HREF="mailto:rothd@roth.net">Dave Roth</A>.
 Include the following (if appropriate):<BR>
 <UL>
 	<LI>Versions of both Perl (perl -v) and ODBC
@@ -261,7 +280,7 @@ Include the following (if appropriate):<BR>
 
 <H2><A NAME="Latest">Obtaining the Latest Versions</A></H2>
 <UL>
-	<LI>Win32::ODBC - <A HREF="ftp://ftp.infowire.com/pub/ntperl/odbc.zip">ftp.infowire.com</A>
+	<LI>Win32::ODBC - <A HREF="ftp://ftp.roth.net/pub/ntperl/odbc.zip">ftp.roth.net</A>
 	<LI>Perl for Win32 - <A HREF="ftp://ftp.perl.hip.com/ntperl/perl5.001m/CurrentBuild/">ftp.hip.com</A>
 </UL>
 

@@ -4,10 +4,9 @@
         |              ODBC extension for Win32 Perl               |
         |              -----------------------------               |
         |                                                          |
-        |             by Dave Roth <dave@roth.net> 				   |
-        |            or <roth@panda.dnr.state.mi.us>               |
+        |            by Dave Roth (rothd@roth.net)             |
         |                                                          |
-        |                  version v960528 (hack)                  |
+        |                  version v960722 (hack)                  |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -30,7 +29,7 @@
 #include <EXTERN.h>
 #include "perl.h"
 #include "XSub.h"
-#include "odbc.h"
+#include "odbc.h"		   
 
 /*----------------------- P E R L   F U N C T I O N S -------------------*/
 
@@ -892,6 +891,41 @@ XS(XS_WIN32__ODBC_TableList) // ODBC_TableList($connection) returns (0,@TableNam
 	PUTBACK;
 }
 
+/*
+	This next chunk of code (XS_WIN32__ODBC_MoreResults) was 
+	graciously donated by Brian Dunfordshore <Brian_Dunfordshore@bridge.com>.
+	Thanks Brian!
+	96.07.10
+*/
+XS(XS_WIN32__ODBC_MoreResults) 	// usage: ODBC_MoreResults($conn)
+{
+	dXSARGS;
+ 	RETCODE retcode;         // yet more ODBC garbage
+ 	ODBC_TYPE *h;
+ 
+ 	h = _NT_ODBC_Verify(SvIV(ST(0)));
+ 
+ 	PUSHMARK(sp);
+ 	if (h != ODBCList){
+ 		retcode = SQLMoreResults(h->hstmt);
+ 		if((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO)){
+ 			_NT_ODBC_Error(h);
+ 		}
+ 		if (retcode == SQL_NO_DATA_FOUND){
+ 			h->EOR = 1;
+ 			strcpy(h->szError, "No data records remain.");
+ 		}
+ 	}
+ 	if (!h->error){		 // everything is happy
+ 		XPUSHs(sv_2mortal(newSVnv((double)0)));
+ 		XPUSHs(sv_2mortal(newSVnv((double)0)));
+ 	}else{
+ 		XPUSHs(sv_2mortal(newSVnv((double)h->error)));
+ 		XPUSHs(sv_2mortal(newSVpv(h->szError, strlen(h->szError))));
+ 	}
+	PUTBACK;
+}
+
 XS(XS_WIN32__ODBC_GetMaxBufSize) 
 {
 	dXSARGS;
@@ -1196,7 +1230,7 @@ XS(XS_WIN32__ODBC_CleanError)
 	PUTBACK;
 }
 
-
+   
 XS(XS_WIN32__ODBC_ColAttributes) 
 {
 	dXSARGS;
@@ -1252,7 +1286,7 @@ XS(XS_WIN32__ODBC_ColAttributes)
 	PUTBACK;
 }
 
-
+		
 XS(boot_Win32__ODBC)
 {
 	dXSARGS;
@@ -1277,6 +1311,7 @@ XS(boot_Win32__ODBC)
     newXS("Win32::ODBC::ODBCDisconnect",		XS_WIN32__ODBC_Disconnect, file);
 	newXS("Win32::ODBC::ODBCGetError",			XS_WIN32__ODBC_GetError, file);
 	newXS("Win32::ODBC::ODBCTableList",			XS_WIN32__ODBC_TableList, file);
+	newXS("Win32::ODBC::ODBCMoreResults",		XS_WIN32__ODBC_MoreResults, file);
 	newXS("Win32::ODBC::ODBCGetMaxBufSize",		XS_WIN32__ODBC_GetMaxBufSize, file);
 	newXS("Win32::ODBC::ODBCSetMaxBufSize",		XS_WIN32__ODBC_SetMaxBufSize, file);
 	newXS("Win32::ODBC::ODBCGetConnections",	XS_WIN32__ODBC_GetConnections, file);
@@ -1289,7 +1324,7 @@ XS(boot_Win32__ODBC)
 	newXS("Win32::ODBC::ODBCCleanError",		XS_WIN32__ODBC_CleanError, file);
 	newXS("Win32::ODBC::Info",					XS_WIN32__ODBC_Info, file);
 	newXS("Win32::ODBC::ODBCColAttributes",		XS_WIN32__ODBC_ColAttributes, file);									   
- 	ST(0) = &sv_yes;
+	ST(0) = &sv_yes;
 	XSRETURN(1);
 
 }

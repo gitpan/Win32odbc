@@ -71,9 +71,9 @@ int	ColNameToNum(ODBC_TYPE *h, char *szName);
 
 
 #define	VERNAME		"ODBC extension for Win32 Perl"
-#define VERSION		"v960528"
+#define VERSION		"v960722"
 #define VERDATE		__DATE__
-#define VERAUTH     "Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>"
+#define VERAUTH     "Dave Roth <rothd@roth.net>"
 #define VERCRED		"Copyright (c) 1996 Dave Roth.\nBased on original code by Dan DeMaggio <dmag@umich.edu>."	
 					 
 

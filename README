@@ -4,15 +4,14 @@
         |              ODBC extension for Win32 Perl               |
         |              -----------------------------               |
         |                                                          |
-        |             by Dave Roth <dave@roth.net> 				   |
-        |            or <roth@panda.dnr.state.mi.us>               |
+        |              by Dave Roth <rothd@roth.net>               |
         |                                                          |
-        |                  version v960528 (hack)                  |
+        |                  version v960722 (hack)                  |
         |                                                          |
         |                                                          |
         |                     ODBC.PM package                      |
         |                     ---------------                      |
-        |                     Release v960528                      |
+        |                     Release v960721                      |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -21,12 +20,18 @@
         +==========================================================+
 
 
-          based on original code by Dan DeMaggio (dmag@umich.edu)
+          based on original code by Dan DeMaggio <dmag@umich.edu>
 
  Use under GNU General Public License or Larry Wall's "Artistic License"
 
- This is a hack of Dan DeMaggio's (dmag@umich.edu) NTXS.C ODBC implimentation.
- I have recoded and restructred much of it including most of the ODBC.PM
+
+    ---------------------------------------------------------------------
+    CHECK OUT THE FAQ!!! HTTP://WWW.ROTH.NET/USERS/ROTHD/PERL/ODBCFAQ.HTM
+    ---------------------------------------------------------------------
+
+
+ This is a hack of Dan DeMaggio's <dmag@umich.edu> NTXS.C ODBC implimentation.
+ I have recoded and restructered much of it including most of the ODBC.PM
  package but its core is still based on Dan's code (thanks Dan!).
 
 ODBC.PM HISTORY:
@@ -36,31 +41,31 @@ ODBC.PM HISTORY:
           and return an array or scalar.
          -Confirm Win95 compliance.
          -Various bug fixes.
-96.04.10 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.04.10 Dave Roth <rothd@roth.net>
          -Fixed the RowCount() to default to the current connection.
-96.04.15 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>		
+96.04.15 Dave Roth <rothd@roth.net>		
 		 -Changed version numbers to a date format.
-96.05.07 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.05.07 Dave Roth <rothd@roth.net>
          -Fixed Data(): If returning an array, the array consisted of
           the requested fieldnames + the values. Now only returns the
           values. Thanks to Dan Westerlund <westerlund@dkraft.se>!
-96.05.11 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.05.11 Dave Roth <rothd@roth.net>
 		 -Corrected SetStmtCloseType(): it was using the CloseType as
 		  if it was a ConnectionNumber instead.
-96.05.28 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
-         -Added ODBCColAttributes(): returns attribute for a column 
-		  in a data set.
+96.07.22 Brian Dunfordshore <Brian_Dunfordshore@bridge.com>
+         -Added MoreResults().
+
 
 ODBC.PLL HISTORY:
 ----------------
-96.04.10 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.04.10 Dave Roth <rothd@roth.net>
          -Fixed a "memory bug": we were using SQL_CLOSE when closing
           an ODBC statement. This kept the cursor alive in memory so
           it can be cached in the event the same SQL statement is issued.
           We are now using SQL_DROP. This may lessen speed if the same
           SQL statements are issued again and again per connection.
          -Cleaned up some code.
-96.04.12 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.04.12 Dave Roth <rothd@roth.net>
          -Added G/SetStmtCloseType() functions.
          -Added some constants.
 96.04.13 ** We now are trying to include a version for builds up to and
@@ -73,14 +78,14 @@ ODBC.PLL HISTORY:
          -Fix the SDWORD wrap-around bug in ODBCFetchRow(): when a column of
 		  size  2147483647 adding 1 (for a NULL byte in szBuf) yields
 		  (-2147483648) (not easy to "net UCHAR (-2147483648)"!!)
-96.04.22 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.04.22 Dave Roth <rothd@roth.net>
 		 -Inspired by Jutta, I have increased the max limit for SetMaxBufSize()
 		  to 2,147,483,647 bytes.
-96.05.03 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.05.03 Dave Roth <rothd@roth.net>
 		 -Set the lowest allocated char array to be 20 bytes in ODBCFetchRow().
 		  Evidentally sometimes the ODBC manager will report too few chars 
 		  that are needed to represent an autonumber field.
-96.05.08 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
+96.05.08 Dave Roth <rothd@roth.net>
 		 -Convert all results from ODBCTableList() to uppercase since different
 		  ODBC drivers impliment this differently (some uppercase some lower).
 		  Thanks again to Jutta M. Klebe <jmk@exc.bybyte.de>
@@ -91,10 +96,8 @@ ODBC.PLL HISTORY:
 		  to represent the C data type for the particular column. We need it to
 		  return the number of bytes needed to represent an ASCII version of the value
 		  held within the data type.
-96.05.28 Dave Roth <dave@roth.net> or <roth@panda.dnr.state.mi.us>
-         -Added the ColAttributes() method.
-		 -Added Version() method.
-		  
+96.07.22 Brian Dunfordshore <Brian_Dunfordshore@bridge.com>
+         -Added ODBCMoreResults().
         
 
 Following in tradition...
@@ -142,8 +145,7 @@ What known problems does this thing have?
       file. I noticed this using the MS Jet Engine (Access Driver).
 
     - This has not been neither optimized for speed nor optimized for memory
-      consumption. This may run into memory bloat.
-
+      consumption.
 
 
 
@@ -163,10 +165,12 @@ archive. You must first, however alter TEST.PL:
 
 1) You will need to dump the ODBC.PM file into the \PERL\LIB\WIN32\ directory.
 
-2) You need to copy either ODBC105.PLL or ODBC106.PLL (depending on your
-   version of Win32 Perl's build number. Run:  perl -v   to check which build
-   you have) into \PERL\LIB\AUTO\WIN32\ODBC\ODBC.PLL.\
-   **** Notice that we are changing the name to ODBC.PLL!!!!
+2) There has been a change since version v960721: I am no longer supporting
+   versions for the Win32 Perl build 105 (and lower). If you still use such
+   a young build, consider updating or recompile on your own.
+
+   You need to copy the ODBC.PLL file into the \PERL\LIB\AUTO\WIN32\ODBC\
+   directory.
 
    ---------------------------------------------------------
 If you already have another package \PERL\LIB\ODBC.PM (notice the path does NOT
@@ -295,6 +299,13 @@ GetMaxBufSize()
     This will report the current allocated limit for the MaxBufSize. For info
     see SetMaxBufSize().
     returns: Max number of bytes.
+
+MoreResults()
+	This will report whether or not there is data yet to be retrieved from the
+	query. This can happen if the query was a multiple select 
+	(eg: "SELECT * FROM [foo] SELECT * FROM [bar]")
+	returns: 1 if there is more data
+	         undef if there is no more data
 
 new($DSN)
     Creates a new ODBC connection based on $DSN.

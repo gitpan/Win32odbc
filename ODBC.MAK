@@ -46,7 +46,7 @@ RSC=rc.exe
 OUTDIR=.\WinRel
 INTDIR=.\WinRel
 
-ALL : "d:\perl\lib\auto\Win32\odbc\ODBC.PLL" $(OUTDIR)/"odbc.bsc"
+ALL : "\perl\lib\auto\Win32\odbc\ODBC.PLL" $(OUTDIR)/"ODBC.bsc"
 
 $(OUTDIR) : 
     if not exist $(OUTDIR)/nul mkdir $(OUTDIR)
@@ -55,38 +55,39 @@ $(OUTDIR) :
 # ADD MTL /nologo /D "NDEBUG" /win32
 MTL_PROJ=/nologo /D "NDEBUG" /win32 
 # ADD BASE CPP /nologo /MT /W3 /GX /YX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
-# ADD CPP /nologo /MT /W3 /GX /YX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
-CPP_PROJ=/nologo /MT /W3 /GX /YX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
- /FR$(INTDIR)/ /Fp$(OUTDIR)/"odbc.pch" /Fo$(INTDIR)/ /c 
+# ADD CPP /nologo /MT /W3 /GX /YX /O2 /I "..\..\.." /I "..\..\..\inc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
+CPP_PROJ=/nologo /MT /W3 /GX /YX /O2 /I "..\..\.." /I "..\..\..\inc" /D "WIN32"\
+ /D "NDEBUG" /D "_WINDOWS" /FR$(INTDIR)/ /Fp$(OUTDIR)/"ODBC.pch" /Fo$(INTDIR)/\
+ /c 
 CPP_OBJS=.\WinRel/
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o$(OUTDIR)/"odbc.bsc" 
+BSC32_FLAGS=/nologo /o$(OUTDIR)/"ODBC.bsc" 
 BSC32_SBRS= \
 	$(INTDIR)/"ODBC.SBR"
 
-$(OUTDIR)/"odbc.bsc" : $(OUTDIR)  $(BSC32_SBRS)
+$(OUTDIR)/"ODBC.bsc" : $(OUTDIR)  $(BSC32_SBRS)
     $(BSC32) @<<
   $(BSC32_FLAGS) $(BSC32_SBRS)
 <<
 
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /NOLOGO /SUBSYSTEM:windows /DLL /MACHINE:I386
-# ADD LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL /INCREMENTAL:yes /MACHINE:I386 /FORCE /OUT:"d:\perl\lib\auto\Win32\odbc\ODBC.PLL"
+# ADD LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL /INCREMENTAL:yes /MACHINE:I386 /FORCE /OUT:"c:\perl\lib\auto\Win32\odbc\ODBC.PLL"
 # SUBTRACT LINK32 /VERBOSE
 LINK32_FLAGS=kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib\
  odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL\
- /INCREMENTAL:yes /PDB:$(OUTDIR)/"odbc.pdb" /MACHINE:I386 /DEF:".\ODBC.DEF"\
- /FORCE /OUT:"d:\perl\lib\auto\Win32\odbc\ODBC.PLL" /IMPLIB:$(OUTDIR)/"odbc.lib"\
+ /INCREMENTAL:yes /PDB:$(OUTDIR)/"ODBC.pdb" /MACHINE:I386 /DEF:".\ODBC.DEF"\
+ /FORCE /OUT:"c:\perl\lib\auto\Win32\odbc\ODBC.PLL" /IMPLIB:$(OUTDIR)/"ODBC.lib"\
  
 DEF_FILE=".\ODBC.DEF"
 LINK32_OBJS= \
 	$(INTDIR)/"ODBC.OBJ"
 
-"d:\perl\lib\auto\Win32\odbc\ODBC.PLL" : $(OUTDIR)  $(DEF_FILE) $(LINK32_OBJS)
+"\perl\lib\auto\Win32\odbc\ODBC.PLL" : $(OUTDIR)  $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -104,7 +105,7 @@ LINK32_OBJS= \
 OUTDIR=.\WinDebug
 INTDIR=.\WinDebug
 
-ALL : "d:\perl\lib\auto\Win32\odbc\ODBC.PLL" $(OUTDIR)/"odbc.bsc"
+ALL : "\perl\lib\auto\Win32\odbc\ODBC.PLL" $(OUTDIR)/"ODBC.bsc"
 
 $(OUTDIR) : 
     if not exist $(OUTDIR)/nul mkdir $(OUTDIR)
@@ -113,36 +114,37 @@ $(OUTDIR) :
 # ADD MTL /nologo /D "_DEBUG" /win32
 MTL_PROJ=/nologo /D "_DEBUG" /win32 
 # ADD BASE CPP /nologo /MT /W3 /GX /Zi /YX /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /c
-# ADD CPP /nologo /MT /W3 /GX /Zi /YX /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /c
-CPP_PROJ=/nologo /MT /W3 /GX /Zi /YX /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
- /FR$(INTDIR)/ /Fp$(OUTDIR)/"odbc.pch" /Fo$(INTDIR)/ /Fd$(OUTDIR)/"odbc.pdb" /c 
+# ADD CPP /nologo /MT /W3 /GX /Zi /YX /Od /I "..\..\.." /I "..\..\..\inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /c
+CPP_PROJ=/nologo /MT /W3 /GX /Zi /YX /Od /I "..\..\.." /I "..\..\..\inc" /D\
+ "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR$(INTDIR)/ /Fp$(OUTDIR)/"ODBC.pch"\
+ /Fo$(INTDIR)/ /Fd$(OUTDIR)/"ODBC.pdb" /c 
 CPP_OBJS=.\WinDebug/
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o$(OUTDIR)/"odbc.bsc" 
+BSC32_FLAGS=/nologo /o$(OUTDIR)/"ODBC.bsc" 
 BSC32_SBRS= \
 	$(INTDIR)/"ODBC.SBR"
 
-$(OUTDIR)/"odbc.bsc" : $(OUTDIR)  $(BSC32_SBRS)
+$(OUTDIR)/"ODBC.bsc" : $(OUTDIR)  $(BSC32_SBRS)
     $(BSC32) @<<
   $(BSC32_FLAGS) $(BSC32_SBRS)
 <<
 
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /NOLOGO /SUBSYSTEM:windows /DLL /DEBUG /MACHINE:I386
-# ADD LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /SUBSYSTEM:windows /DLL /DEBUG /MACHINE:I386 /FORCE /OUT:"d:\perl\lib\auto\Win32\odbc\ODBC.PLL"
+# ADD LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /SUBSYSTEM:windows /DLL /DEBUG /MACHINE:I386 /FORCE /OUT:"c:\perl\lib\auto\Win32\odbc\ODBC.PLL"
 LINK32_FLAGS=kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib\
  odbccp32.lib /NOLOGO /BASE:0x101f0000 /SUBSYSTEM:windows /DLL /INCREMENTAL:yes\
- /PDB:$(OUTDIR)/"odbc.pdb" /DEBUG /MACHINE:I386 /DEF:".\ODBC.DEF" /FORCE\
- /OUT:"d:\perl\lib\auto\Win32\odbc\ODBC.PLL" /IMPLIB:$(OUTDIR)/"odbc.lib" 
+ /PDB:$(OUTDIR)/"ODBC.pdb" /DEBUG /MACHINE:I386 /DEF:".\ODBC.DEF" /FORCE\
+ /OUT:"c:\perl\lib\auto\Win32\odbc\ODBC.PLL" /IMPLIB:$(OUTDIR)/"ODBC.lib" 
 DEF_FILE=".\ODBC.DEF"
 LINK32_OBJS= \
 	$(INTDIR)/"ODBC.OBJ"
 
-"d:\perl\lib\auto\Win32\odbc\ODBC.PLL" : $(OUTDIR)  $(DEF_FILE) $(LINK32_OBJS)
+"\perl\lib\auto\Win32\odbc\ODBC.PLL" : $(OUTDIR)  $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -160,7 +162,7 @@ LINK32_OBJS= \
 OUTDIR=.\Win32_Re
 INTDIR=.\Win32_Re
 
-ALL : "d:\perl\lib\auto\win32\odbc\odbc105.pll" $(OUTDIR)/"odbc.bsc"
+ALL : "\perl\lib\auto\win32\odbc\odbc105.pll" $(OUTDIR)/"ODBC.bsc"
 
 $(OUTDIR) : 
     if not exist $(OUTDIR)/nul mkdir $(OUTDIR)
@@ -169,22 +171,22 @@ $(OUTDIR) :
 # ADD MTL /nologo /D "NDEBUG" /win32
 MTL_PROJ=/nologo /D "NDEBUG" /win32 
 # ADD BASE CPP /nologo /MT /W3 /GX /YX /O2 /I "..\..\.." /I "..\..\..\inc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /X /I "s:\include\perl105\\" /I "s:\include" /I "e:\msvc\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /X /I "c:\source\include\perl105\\" /I "c:\source\include" /I "d:\msvc\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
 # SUBTRACT CPP /YX
-CPP_PROJ=/nologo /MT /W3 /GX /O2 /X /I "s:\include\perl105\\" /I "s:\include"\
- /I "e:\msvc\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR$(INTDIR)/\
- /Fo$(INTDIR)/ /c 
+CPP_PROJ=/nologo /MT /W3 /GX /O2 /X /I "c:\source\include\perl105\\" /I\
+ "c:\source\include" /I "d:\msvc\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
+ /FR$(INTDIR)/ /Fo$(INTDIR)/ /c 
 CPP_OBJS=.\Win32_Re/
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o$(OUTDIR)/"odbc.bsc" 
+BSC32_FLAGS=/nologo /o$(OUTDIR)/"ODBC.bsc" 
 BSC32_SBRS= \
 	$(INTDIR)/"ODBC.SBR"
 
-$(OUTDIR)/"odbc.bsc" : $(OUTDIR)  $(BSC32_SBRS)
+$(OUTDIR)/"ODBC.bsc" : $(OUTDIR)  $(BSC32_SBRS)
     $(BSC32) @<<
   $(BSC32_FLAGS) $(BSC32_SBRS)
 <<
@@ -192,18 +194,17 @@ $(OUTDIR)/"odbc.bsc" : $(OUTDIR)  $(BSC32_SBRS)
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL /INCREMENTAL:yes /MACHINE:I386 /FORCE /OUT:"c:\perl\lib\auto\Win32\odbc\ODBC.PLL"
 # SUBTRACT BASE LINK32 /VERBOSE
-# ADD LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL /INCREMENTAL:yes /MACHINE:I386 /OUT:"d:\perl\lib\auto\win32\odbc\odbc105.pll"
+# ADD LINK32 kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL /INCREMENTAL:yes /MACHINE:I386 /OUT:"c:\perl\lib\auto\win32\odbc\odbc105.pll"
 # SUBTRACT LINK32 /VERBOSE /FORCE
 LINK32_FLAGS=kernel32.lib user32.lib advapi32.lib netapi32.lib odbc32.lib\
  odbccp32.lib /NOLOGO /BASE:0x101f0000 /VERSION:0,5 /SUBSYSTEM:windows /DLL\
- /INCREMENTAL:yes /PDB:$(OUTDIR)/"odbc.pdb" /MACHINE:I386 /DEF:".\ODBC.DEF"\
- /OUT:"d:\perl\lib\auto\win32\odbc\odbc105.pll" /IMPLIB:$(OUTDIR)/"odbc.lib" 
+ /INCREMENTAL:yes /PDB:$(OUTDIR)/"ODBC.pdb" /MACHINE:I386 /DEF:".\ODBC.DEF"\
+ /OUT:"c:\perl\lib\auto\win32\odbc\odbc105.pll" /IMPLIB:$(OUTDIR)/"ODBC.lib" 
 DEF_FILE=".\ODBC.DEF"
 LINK32_OBJS= \
 	$(INTDIR)/"ODBC.OBJ"
 
-"d:\perl\lib\auto\win32\odbc\odbc105.pll" : $(OUTDIR)  $(DEF_FILE)\
- $(LINK32_OBJS)
+"\perl\lib\auto\win32\odbc\odbc105.pll" : $(OUTDIR)  $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -232,39 +233,39 @@ SOURCE=.\ODBC.DEF
 
 SOURCE=.\ODBC.CPP
 DEP_ODBC_=\
-	"\\wild1_32\source$\include\perl\EXTERN.h"\
-	"\\wild1_32\source$\include\perl\perl.h"\
-	"\\wild1_32\source$\include\perl\XSub.h"\
+	"\source\perl\dll-src\extern.h"\
+	"\source\perl\dll-src\perl.h"\
+	"\source\perl\dll-src\xsub.h"\
 	".\ODBC.H"\
-	"\\wild1_32\source$\include\perl\embed.h"\
-	"\\wild1_32\source$\include\perl\config.h"\
-	"e:\msvc\INCLUDE\sys\types.h"\
-	"e:\msvc\INCLUDE\sys\stat.h"\
-	"\\wild1_32\source$\include\perl\dirent.h"\
-	"\\wild1_32\source$\include\perl\handy.h"\
-	"\\wild1_32\source$\include\perl\dosish.h"\
-	"\\wild1_32\source$\include\perl\unixish.h"\
-	"\\wild1_32\source$\include\perl\regexp.h"\
-	"\\wild1_32\source$\include\perl\sv.h"\
-	"\\wild1_32\source$\include\perl\util.h"\
-	"\\wild1_32\source$\include\perl\form.h"\
-	"\\wild1_32\source$\include\perl\gv.h"\
-	"\\wild1_32\source$\include\perl\cv.h"\
-	"\\wild1_32\source$\include\perl\opcode.h"\
-	"\\wild1_32\source$\include\perl\op.h"\
-	"\\wild1_32\source$\include\perl\cop.h"\
-	"\\wild1_32\source$\include\perl\av.h"\
-	"\\wild1_32\source$\include\perl\hv.h"\
-	"\\wild1_32\source$\include\perl\scope.h"\
-	"\\wild1_32\source$\include\perl\perly.h"\
-	"\\wild1_32\source$\include\perl\perllib.h"\
-	"\\wild1_32\source$\include\perl\proto.h"\
-	"\\wild1_32\source$\include\perl\pp.h"\
-	"\\wild1_32\source$\include\perl\ntpp.h"\
-	"\\wild1_32\source$\include\perl\mg.h"\
-	"\\wild1_32\source$\include\perl\ntxsub.h"\
-	"\\wild1_32\source$\include\perl\nt.h"\
-	"\\wild1_32\source$\include\perl\IPerlSup.h"
+	"\source\perl\dll-src\embed.h"\
+	"\source\perl\dll-src\config.h"\
+	"D:\MSVC\INCLUDE\sys\TYPES.H"\
+	"D:\MSVC\INCLUDE\sys\STAT.H"\
+	"\source\perl\dll-src\inc\dirent.h"\
+	"\source\perl\dll-src\handy.h"\
+	"\source\perl\dll-src\dosish.h"\
+	"\source\perl\dll-src\unixish.h"\
+	"\source\perl\dll-src\regexp.h"\
+	"\source\perl\dll-src\sv.h"\
+	"\source\perl\dll-src\util.h"\
+	"\source\perl\dll-src\form.h"\
+	"\source\perl\dll-src\gv.h"\
+	"\source\perl\dll-src\cv.h"\
+	"\source\perl\dll-src\opcode.h"\
+	"\source\perl\dll-src\op.h"\
+	"\source\perl\dll-src\cop.h"\
+	"\source\perl\dll-src\av.h"\
+	"\source\perl\dll-src\hv.h"\
+	"\source\perl\dll-src\scope.h"\
+	"\source\perl\dll-src\perly.h"\
+	"\source\perl\dll-src\perllib.h"\
+	"\source\perl\dll-src\proto.h"\
+	"\source\perl\dll-src\pp.h"\
+	"\source\perl\dll-src\ntpp.h"\
+	"\source\perl\dll-src\mg.h"\
+	"\source\perl\dll-src\NTXSub.h"\
+	"\source\perl\dll-src\nt.h"\
+	"\source\perl\dll-src\iperlsup.h"
 
 !IF  "$(CFG)" == "Win32 Release"
 

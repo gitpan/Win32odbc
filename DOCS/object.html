@@ -58,6 +58,7 @@
 		<LI><A HREF="object.html#DataHash">DataHash()</A>
 		<LI><A HREF="object.html#DataSources">DataSources()</A>
 		<LI><A HREF="object.html#Drivers">Drivers()</A>
+		<LI><A HREF="object.html#DumpError">DumpError()</A>
 		<LI><A HREF="object.html#DumpData">DumpData()</A>
 		<LI><A HREF="object.html#Error">Error()</A>
 		<LI><A HREF="object.html#FetchRow">FetchRow()</A>
@@ -66,6 +67,7 @@
 		<LI><A HREF="object.html#GetDSN">GetDSN()</A>
 		<LI><A HREF="object.html#GetStmtCloseType">GetStmtCloseType()</A>
 		<LI><A HREF="object.html#GetMaxBufSize">GetMaxBufSize()</A>
+		<LI><A HREF="object.html#MoreResults">MoreResults()</A>
 		<LI><A HREF="object.html#new">new()</A>
 		<LI><A HREF="object.html#RowCount">RowCount()</A>
 		<LI><A HREF="object.html#Run">Run()</A>
@@ -149,7 +151,7 @@ be fixed ASAP, but be forwarned!</EM>
 <DT><STRONG><A NAME="Close">Close</A></STRONG>
 <DD>Closes the ODBC connection for this object.  It always returns
 	<STRONG>undef</STRONG>.
-<PRE>Example:
+<PRE>Example:												  
 <STRONG>$db->Close();</STRONG></PRE>
 <P>
 
@@ -222,6 +224,21 @@ attributes.
 print LOG qq($driver: $attrib{$driver}\n) foreach $driver (keys %attrib);</STRONG></PRE>
 <P>
 
+<!-- DumpError -->
+<DT><STRONG><A NAME="DumpError">DumpError</A></STRONG>
+<DD>Dump to the screen details about the last error condition. This
+    includes error number, error text and the ODBC connection number that
+    caused the error (if there is one). This is used primarily for debugging.
+<PRE>Example:
+<STRONG>$db = new Win32::ODBC("My DSN");
+if (undef $db){
+    Win32::ODBC::DumpError();
+}
+if ($db->Sql("Select * FROM foo")){
+    $db->DumpError;
+}</STRONG></PRE>
+<P>
+
 <!-- DumpData -->
 <DT><STRONG><A NAME="DumpData">DumpData</A></STRONG>
 <DD>Dump to the screen all field names and the data in all rows of the current
@@ -233,9 +250,14 @@ $db->DumpData;</STRONG></PRE>
 
 <!-- Error -->
 <DT><STRONG><A NAME="Error">Error</A></STRONG>
-<DD>Returns the last recorded error.
+<DD>Returns the last recorded error in the form of an array or
+    string (depending upon the context) containing the error number,
+    error text and the ODBC connection that caused the	error (if 
+    there is one). 
 <PRE>Example:
-<STRONG>die $db->Error(), qq(\n);</STRONG></PRE>
+<STRONG>die $db->Error(), qq(\n);
+
+($ErrNum, $ErrText, $ErrConn) = $db->Error();</STRONG></PRE>
 <P>
 
 <!-- FetchRow -->
@@ -301,6 +323,22 @@ $db->SetStmtCloseType(SQL_DROP);
 ...
 $db->SetStmtCloseType($oldct);</STRONG></PRE>
 See also: <A HREF="#SetStmtCloseType">SetStmtCloseType</A>
+<P>
+
+<!-- MoreResults -->
+<DT><STRONG><A NAME="MoreResults">MoreResults</A></STRONG>
+<DD>Sees if more result sets are present and initializes for fetching rows from
+next result set.  You would then call <A HREF="#FetchRow">FetchRow</A> to
+actually fetch the next row of the next result set.  Returns <STRONG>undef</STRONG>
+if there's an error, <STRONG>TRUE</STRONG> otherwise.
+<PRE>Example:
+<STRONG>$db->Sql("SELECT * FROM foo\n  SELECT * FROM bar");
+$db->FetchRow() || die qq(Fetch error: ), $db->Error(), qq(\n);
+$f1 = $db->Data("f1");
+$db->MoreResults() || die qq(Error checking for more result sets: ), $db->Error(), qq(\n);
+$db->FetchRow() || die qq(Fetch error: ), $db->Error(), qq(\n);
+$f1 = $db->Data("f1");</STRONG></PRE>
+See also: <A HREF="#Sql">Sql</A>, <A HREF="#Data">Data</A>
 <P>
 
 <!-- new -->
@@ -433,7 +471,7 @@ does not make sense.  Send these or other comments to:
 <A HREF="mailto:joc@netaxs.com">joc@netaxs.com</A>.<P>
 
 <ADDRESS>Copyright &copy; Dave Roth and Joseph L. Casadonte Jr. 1996.  All rights reserved.</ADDRESS>
-<ADDRESS>Win32::ODBC - Object / 07 May 1996 / joc@netaxs.com</ADDRESS>
+<ADDRESS>Win32::ODBC - Object / 22 Jul 1996 / joc@netaxs.com</ADDRESS>
 
 </BODY>
 </HTML>

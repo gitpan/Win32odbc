@@ -46,6 +46,9 @@
     print "\t|", Center("", $iWidth), "|\n";
     print "\t+", "=" x ($iWidth), "+\n";
 
+####
+#   T E S T  1
+####
     print "\n------- T E S T  # 1  (Dump available ODBC Drivers) ----";
     print "\n-------                                             ----\n";
     print "\nAvailable ODBC Drivers:\n";
@@ -55,6 +58,9 @@
     }
 
 
+####
+#   T E S T  2
+####
     print "\n------- T E S T  # 2  (Dump available datasources) ----";
     print "\n-------                                            ----\n";
 
@@ -67,31 +73,41 @@
         print "\tDSN=\"$Temp2\" (\"$Temp{$Temp2}\")\n";
     }
 
+
+####
+#   T E S T  3
+####
     print "\n------- T E S T  # 3  (Open several connections) ----";
     print "\n-------                                          ----\n";
 
     print "\nOpening ODBC connection for \"$DSN\" ";
     if (!($O = new Win32::ODBC($DSN))){
         print "Error opening a connection.\n";
+        Error();
         exit();
     }
-    Error();
+    Error($O);
 
     print "Opening ODBC connection for \"$DSN\" ";
     if (!($O2 = new Win32::ODBC($DSN))){
         print "Error opening a connection.\n";
+        Error();
         exit();
    }
-    Error();
+    Error($O2);
 
     print "Opening ODBC connection for \"$DSN\" ";
     if (!($O3 = new Win32::ODBC($DSN))){
         print "Error opening a connection.\n";
+        Error();
         exit();
     }
-    Error();
+    Error($O3);
 
 
+####
+#   T E S T  4
+####
     print "\n------- T E S T  # 4  (Close all but one connection) ----";
     print "\n-------                                              ----\n";
 
@@ -99,42 +115,47 @@
 
     print "Closing ODBC connection #", $O2->Connection(), "... ";
     $O2->Close();
-    Error();
+    Error($O2);
 
         print "\tCurrently open ODBC connections are: \"", join(", ", sort($O2->GetConnections())), "\"\n";
 
     print "Closing ODBC connection #", $O3->Connection(), "... ";
     $O3->Close();
-    Error();
+    Error($O3);
 
         print "\tCurrently open ODBC connections are: \"", join(", ", sort($O2->GetConnections())), "\"\n";
 
-
+####
+#   T E S T  5
+####
     print "\n------- T E S T  # 5  (Set/query Max Buffer size for a connection) ----";
     print "\n-------                                                            ----\n";
     srand(time);
     $Temp = int(rand(10240)) + 10240;
     print "\nMaximum Buffer Size for connection #", $O->Connection(), ":\n";
     print "\tValue set at ", $O->GetMaxBufSize(), "\n";
-    Error();
+    Error($O);
     print "\tSetting Maximum Buffer Size to $Temp...  it has been set to ", $O->SetMaxBufSize($Temp), "\n";
-    Error();
+    Error($O);
     print "\tValue set at ", $O->GetMaxBufSize(), "\n";
-    Error();
+    Error($O);
 
     $Temp += int(rand(10240)) + 102400;
     print "\tSetting Maximum Buffer Size to $Temp... (can not be more than 102400)\n\t\t...it has been set to ", $O->SetMaxBufSize($Temp), "\n";
-    Error();
+    Error($O);
     print "\tValue set at ", $O->GetMaxBufSize(), "\n";
-    Error();
+    Error($O);
 
     $Temp = int(rand(1024)) + 2048;
     print "\tSetting Maximum Buffer Size to $Temp...  it has been set to ", $O->SetMaxBufSize($Temp), "\n";
-    Error();
+    Error($O);
     print "\tValue set at ", $O->GetMaxBufSize(), "\n";
-    Error();
+    Error($O);
 
 
+####
+#   T E S T  6
+####
     print "\n------- T E S T  # 6  (Set/query Stmt Close Type      ) ----";
     print "\n-------                                                 ----\n";
 
@@ -144,21 +165,27 @@
     print "Statement Close Type is currently set as ", $O->GetStmtCloseType(), " " . $O->Error ."\n";
 
 
+####
+#   T E S T  7
+####
     print "\n------- T E S T  # 7  (Dump DSN for current connection) ----";
     print "\n-------                                                 ----\n";
     print"\nThe current connection #", $O->Connection(), ":";
-    Error();
+    Error($O);
     print "DSN=\"", ($O->GetDSN() =~ /DSN=(.*?);.*/i), "\"\n";
-    Error();
+    Error($O);
     print "Full ODBC DSN=\"", ($O->GetDSN()), "\"\n";
-    Error();
+    Error($O);
 
 
 
+####
+#   T E S T  8
+####
     print "\n------- T E S T  # 8  (Dump list of tables in datasource) ----";
     print "\n-------                                                   ----\n";
     print "\nList of tables for \"", ($O->GetDSN() =~ /DSN=(.*?);.*/i), "\"\n";
-    Error();
+    Error($O);
 
     $Num = 1;
     foreach $Temp ($O->TableList()){
@@ -168,6 +195,9 @@
 
 
 
+####
+#   T E S T  9
+####
     print "\n------- T E S T  # 9  (Dump list of tables in datasource) ----";
     print "\n-------                                                   ----\n";
     $Num = 1;
@@ -177,10 +207,13 @@
     $iRow = $O->RowCount();
     print "There were $iRow row", ((iRow == 1)? "":"s"), " affected.\n";
     print "This should produce an inoccuous error stating no data records remain.\n";
-    Error();
+    Error($O);
 
 
 
+####
+#   T E S T  10
+####
     print "\n------- T E S T  # 10 (Dump list of tables in datasource) ----";
     print "\n-------               (based on a specified criteria    ) ----\n";
     print "\n";
@@ -189,10 +222,13 @@
         print $Num++, ".) \"$Temp\"\n";
     }
     print "This should produce an inoccuous error stating no data records remain.\n";
-    Error();
+    Error($O);
 
 
 
+####
+#   T E S T  11
+####
     print "\n------- T E S T  # 11 (Dump list of tables in datasource) ----";
     print "\n-------               (based on another criteria        ) ----\n";
     print "\nNOTICE: This is the Catalog() not TableList(), so you need\nto process the data manualy.\n\n";
@@ -206,17 +242,15 @@
         }
     }
     print "This should produce an inoccuous error stating no data records remain.\n";
-    Error();
+    Error($O);
 
 
 #----------------------- F U N C T I O N S ---------------------------
 
 sub Error{
-    if (local($Temp) = @_){
-        local($O) = $Temp;
-    }
-    print "\nError:\"", $O->Error, "\"" if $O->Error;
-    print "\n";
+    my($Data) = @_;
+    $Data->DumpError() if ref($Data);
+    Win32::ODBC::DumpError() if ! ref($Data);
 }
 
 
