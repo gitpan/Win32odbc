@@ -86,7 +86,7 @@ void heapdump( void );
 
 
 #define	VERNAME		"ODBC extension for Win32 Perl"
-#define VERSION		"v961017"
+#define VERSION		"v961025"
 #define VERDATE		__DATE__
 #define VERAUTH     "Dave Roth <rothd@roth.net>"
 #define VERCRED		"Copyright (c) 1996 Dave Roth.\nBased on original code by Dan DeMaggio <dmag@umich.edu>."	

@@ -53,7 +53,7 @@ $(OUTDIR) :
 
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /win32
-MTL_PROJ=/nologo /D "NDEBUG" /win32  
+MTL_PROJ=/nologo /D "NDEBUG" /win32 
 # ADD BASE CPP /nologo /MT /W3 /GX /YX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
 # ADD CPP /nologo /G4 /MT /W3 /GX /YX /O2 /I "..\..\.." /I "..\..\..\inc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /c
 CPP_PROJ=/nologo /G4 /MT /W3 /GX /YX /O2 /I "..\..\.." /I "..\..\..\inc" /D\
@@ -246,40 +246,40 @@ SOURCE=.\ODBC.DEF
 
 SOURCE=.\ODBC.CPP
 DEP_ODBC_=\
-	"\include\perl\extern.h"\
-	"\include\perl\perl.h"\
-	"\include\perl\xsub.h"\
+	"\include\Perl\extern.h"\
+	"\include\Perl\perl.h"\
+	"\include\Perl\xsub.h"\
 	".\ODBC.H"\
 	".\CONSTANT.H"\
-	"\include\perl\embed.h"\
-	"\include\perl\config.h"\
+	"\include\Perl\embed.h"\
+	"\include\Perl\config.h"\
 	"E:\MSVC\INCLUDE\sys\TYPES.H"\
 	"E:\MSVC\INCLUDE\sys\STAT.H"\
-	"\include\perl\dirent.h"\
-	"\include\perl\handy.h"\
-	"\include\perl\dosish.h"\
-	"\include\perl\unixish.h"\
-	"\include\perl\regexp.h"\
-	"\include\perl\sv.h"\
-	"\include\perl\util.h"\
-	"\include\perl\form.h"\
-	"\include\perl\gv.h"\
-	"\include\perl\cv.h"\
-	"\include\perl\opcode.h"\
-	"\include\perl\op.h"\
-	"\include\perl\cop.h"\
-	"\include\perl\av.h"\
-	"\include\perl\hv.h"\
-	"\include\perl\scope.h"\
-	"\include\perl\perly.h"\
-	"\include\perl\perllib.h"\
-	"\include\perl\proto.h"\
-	"\include\perl\pp.h"\
-	"\include\perl\ntpp.h"\
-	"\include\perl\mg.h"\
-	"\include\perl\NTXSub.h"\
-	"\include\perl\nt.h"\
-	"\include\perl\iperlsup.h"
+	"\include\Perl\dirent.h"\
+	"\include\Perl\handy.h"\
+	"\include\Perl\dosish.h"\
+	"\include\Perl\unixish.h"\
+	"\include\Perl\regexp.h"\
+	"\include\Perl\sv.h"\
+	"\include\Perl\util.h"\
+	"\include\Perl\form.h"\
+	"\include\Perl\gv.h"\
+	"\include\Perl\cv.h"\
+	"\include\Perl\opcode.h"\
+	"\include\Perl\op.h"\
+	"\include\Perl\cop.h"\
+	"\include\Perl\av.h"\
+	"\include\Perl\hv.h"\
+	"\include\Perl\scope.h"\
+	"\include\Perl\perly.h"\
+	"\include\Perl\perllib.h"\
+	"\include\Perl\proto.h"\
+	"\include\Perl\pp.h"\
+	"\include\Perl\ntpp.h"\
+	"\include\Perl\mg.h"\
+	"\include\Perl\NTXSub.h"\
+	"\include\Perl\nt.h"\
+	"\include\Perl\iperlsup.h"
 
 !IF  "$(CFG)" == "Win32 Release"
 
@@ -301,39 +301,39 @@ $(INTDIR)/"ODBC.OBJ" :  $(SOURCE)  $(DEP_ODBC_) $(INTDIR)
 
 SOURCE=.\CONSTANT.CPP
 DEP_CONST=\
-	"\include\perl\extern.h"\
-	"\include\perl\perl.h"\
-	"\include\perl\xsub.h"\
+	"\include\Perl\extern.h"\
+	"\include\Perl\perl.h"\
+	"\include\Perl\xsub.h"\
 	".\CONSTANT.H"\
-	"\include\perl\embed.h"\
-	"\include\perl\config.h"\
+	"\include\Perl\embed.h"\
+	"\include\Perl\config.h"\
 	"E:\MSVC\INCLUDE\sys\TYPES.H"\
 	"E:\MSVC\INCLUDE\sys\STAT.H"\
-	"\include\perl\dirent.h"\
-	"\include\perl\handy.h"\
-	"\include\perl\dosish.h"\
-	"\include\perl\unixish.h"\
-	"\include\perl\regexp.h"\
-	"\include\perl\sv.h"\
-	"\include\perl\util.h"\
-	"\include\perl\form.h"\
-	"\include\perl\gv.h"\
-	"\include\perl\cv.h"\
-	"\include\perl\opcode.h"\
-	"\include\perl\op.h"\
-	"\include\perl\cop.h"\
-	"\include\perl\av.h"\
-	"\include\perl\hv.h"\
-	"\include\perl\scope.h"\
-	"\include\perl\perly.h"\
-	"\include\perl\perllib.h"\
-	"\include\perl\proto.h"\
-	"\include\perl\pp.h"\
-	"\include\perl\ntpp.h"\
-	"\include\perl\mg.h"\
-	"\include\perl\NTXSub.h"\
-	"\include\perl\nt.h"\
-	"\include\perl\iperlsup.h"
+	"\include\Perl\dirent.h"\
+	"\include\Perl\handy.h"\
+	"\include\Perl\dosish.h"\
+	"\include\Perl\unixish.h"\
+	"\include\Perl\regexp.h"\
+	"\include\Perl\sv.h"\
+	"\include\Perl\util.h"\
+	"\include\Perl\form.h"\
+	"\include\Perl\gv.h"\
+	"\include\Perl\cv.h"\
+	"\include\Perl\opcode.h"\
+	"\include\Perl\op.h"\
+	"\include\Perl\cop.h"\
+	"\include\Perl\av.h"\
+	"\include\Perl\hv.h"\
+	"\include\Perl\scope.h"\
+	"\include\Perl\perly.h"\
+	"\include\Perl\perllib.h"\
+	"\include\Perl\proto.h"\
+	"\include\Perl\pp.h"\
+	"\include\Perl\ntpp.h"\
+	"\include\Perl\mg.h"\
+	"\include\Perl\NTXSub.h"\
+	"\include\Perl\nt.h"\
+	"\include\Perl\iperlsup.h"
 
 !IF  "$(CFG)" == "Win32 Release"
 

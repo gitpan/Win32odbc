@@ -4,9 +4,9 @@
         |              ODBC extension for Win32 Perl               |
         |              -----------------------------               |
         |                                                          |
-        |            by Dave Roth (rothd@roth.net)                 |
+        |            by Dave Roth <rothd@roth.net>                 |
         |                                                          |
-        |                  version v961017                         |
+        |                  version v961025                         |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -20,8 +20,8 @@
    Use under GNU General Public License or Larry Wall's "Artistic License"
 */
 
-#include <windows.h>
 #define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #include <stdio.h>
 
@@ -1857,8 +1857,10 @@ XS(XS_WIN32__ODBC_GetData)
 	UCHAR  buff2[ODBC_BUFF_SIZE];
 	UCHAR	*szBuf = 0;
 	SDWORD	iBuf = DEFAULTCOLSIZE;
-	SDWORD bufflenout;
-	int lenn;
+	SDWORD	bufflenout;
+	SWORD	sSQLType;
+	SWORD	sTemp;
+	int lenn, iTotalPushed, iTemp;
 	UWORD  x;
 	int len;
 	DWORD	dTemp;
@@ -1884,8 +1886,12 @@ XS(XS_WIN32__ODBC_GetData)
 		}
 	}	
 	if (!h->error){		 // everything is happy
+		iTotalPushed = 1;
 		XPUSHs(sv_2mortal(newSVnv((double)0)));
 		for(x=1; x<=h->numcols; x++){
+			if (h->error){
+				break;
+			}
 						/*
 							Needed to change SQL_COLUMN_LENGTH to SQL_COLUMN_DISPLAY_SIZE. The
 							former found the # of bytes needed to represent the C data type
@@ -1917,37 +1923,41 @@ XS(XS_WIN32__ODBC_GetData)
 					if (!(szBuf = new UCHAR [bufflenout + 1])){
 						sprintf((char *)buff2, "Could not allocate enough memory (%d bytes) for column %d.\n", (bufflenout + 1), x);
 						ODBCError((char *)buff2, h, "ODBC_GetData", "2");
-/*
-	This is a problem...
-	If there is an error, we have already XPUSHs'ed the SUCCESS return value.
-	We need to at this point either unXPUSHs all of them so far then reapply
-	the error values OR figure out a really groovy way of dealing with this.
-		rothd	960930
-*/			
-
-											//	Report the error
-						XPUSHs(sv_2mortal(newSVnv((double)1)));	
-						XPUSHs(sv_2mortal(newSVnv((double)h->error)));
-						XPUSHs(sv_2mortal(newSVpv(h->szError, strlen(h->szError))));
-						PUTBACK;
-						return;
+						for(iTemp = 0; iTemp < iTotalPushed; iTemp++){
+							POPs;
+						}
+						continue;
 					}else{
 						iBuf = bufflenout + 1; //	... + 1 -- Jutta M. Klebe <jmk@exc.bybyte.de>	96.04.21
 					}
 				}
 			}
 			memset( szBuf, 0xff, iBuf );		//	Thanks to "Jutta M. Klebe" <jmk@exc.bybyte.de>
+			// if (SQLColAttributes(h->hstmt, x, SQL_COLUMN_DISPLAY_SIZE, NULL, NULL, NULL, &bufflenout) == SQL_SUCCESS){
 			SQLGetData(h->hstmt, x, SQL_C_CHAR, szBuf, (SDWORD)iBuf, &bufflenout); 
-			dTemp = iBuf;
-				//	Predecrement dTemp since the buffersize is iBuf but the index
-				//	size (starting at 0) is iBuf-1
-			while(--dTemp){
-				if (szBuf[dTemp] != 0xff){
-					break;
+			SQLDescribeCol(h->hstmt, x, 0, 0, &sTemp, &sSQLType,(UDWORD *) &bufflenout, &sTemp, &sTemp);
+			dTemp = 0;
+			if ((sSQLType == SQL_LONGVARBINARY) || (sSQLType == SQL_BINARY) || (sSQLType == SQL_VARBINARY)){
+					//	If the data was binary we need to deal with if differently
+					//	since it may have embedded NULLs
+					//	A Binary data byte is represented by by two ASCII chars
+					//	0-F. The two chars together make up an 8 bit number eg:1F
+					//	We must take the first char, roll it 4 bits then take the
+					//	next char, strip off the high 4 bits and OR it with the
+					//	previous byte. We now have one data byte. Cool.
+				for(iTemp = 0; szBuf[iTemp] != '\0'; iTemp =+2){
+					dTemp++;
+					//	Since the binary is represented as a text string (2x the size
+					//	of the binary data) let's just assume that szBuf[iTemp] (on the odd numbers)
+					//	will eventually hold the terminating NULL of the string.
+					szBuf[iTemp] << 4;
+					szBuf[iTemp] |= (szBuf[iTemp + 1] & 0x0F);
 				}
+			}else{
+				dTemp = strlen((const char *)szBuf);
 			}
-					
 			XPUSHs(sv_2mortal(newSVpv((char *)szBuf, dTemp)));
+			iTotalPushed++;
 		}
 	}else{										
 			//	Report the error

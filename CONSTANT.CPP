@@ -1,5 +1,28 @@
-#include <windows.h>
+/*
+        +==========================================================+
+        |                                                          |
+        |              ODBC extension for Win32 Perl               |
+        |              -----------------------------               |
+        |                                                          |
+        |            by Dave Roth <rothd@roth.net>                 |
+        |                                                          |
+        |                  version v961025                         |
+        |                                                          |
+        |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
+        |   This program is free software; you can redistribute    |
+        | it and/or modify it under the same terms as Perl itself. |
+        |                                                          |
+        +==========================================================+
+
+
+          based on original code by Dan DeMaggio (dmag@umich.edu)
+
+   Use under GNU General Public License or Larry Wall's "Artistic License"
+*/
+
+
 #define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #include <stdio.h>
 #include <SQL.H>

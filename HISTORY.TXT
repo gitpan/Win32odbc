@@ -6,12 +6,12 @@
         |                                                          |
         |              by Dave Roth <rothd@roth.net>               |
         |                                                          |
-        |                     version v961017                      |
+        |                     version v961025                      |
         |                                                          |
         |                                                          |
         |                     ODBC.PM package                      |
         |                     ---------------                      |
-        |                     Release v961017                      |
+        |                     Release v961025                      |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -57,6 +57,12 @@ ODBC.PM HISTORY:
          -Added MoreResults().
 96.10.17 Dave Roth <rothd@roth.net>
          -Added support for new functions in ODBC.PLL (see below)
+96.10.18 Dave Roth <rothd@roth.net>
+         -Corrected the calls to GetData().
+         -Added a "dirty" flag so Data() and DataHash() know whether or not
+          to go to ODBCGetData() or use the namespace for field data.
+96.10.25 Dave Roth <rothd@roth.net>
+         -Added ODBC:: reference. Now you can access constants by ODBC::xxx.
 
 
 ODBC.PLL HISTORY:

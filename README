@@ -11,7 +11,7 @@
         |                                                          |
         |                     ODBC.PM package                      |
         |                     ---------------                      |
-        |                     Release v961017                      |
+        |                     Release v961025                      |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -165,6 +165,13 @@ all works.
 
 MAKE SURE that you close you connection when you are finished:
     $Data->Close();
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  You can refer to the contstants by using ODBC::xxxxx where xxxxx is
+  the constant. For example...
+     print ODBC::SQL_SQL_COLUMN_NAME
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 

@@ -5,7 +5,7 @@ package Win32::ODBC;
 #       |                                                          |
 #       |                     ODBC.PM package                      |
 #       |                     ---------------                      |
-#       |                    Release v96.10.17                     |
+#       |                    Release v96.10.25                     |
 #       |                                                          |
 #       |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
 #       |   This program is free software; you can redistribute    |
@@ -26,8 +26,10 @@ require Exporter;
 require DynaLoader;
 
 $ODBCPackage = "Win32::ODBC";
-$ODBCPackage::Version = 961017;
+$ODBCPackage::Version = 961025;
 $::ODBC = $ODBCPackage;
+    #   Reserve ODBC in the main namespace for US!
+*ODBC::=\%Win32::ODBC::;
 
 @ISA= qw( Exporter DynaLoader );
     # Items to export into callers namespace by default. Note: do not export
@@ -71,12 +73,6 @@ $::ODBC = $ODBCPackage;
     #The above are included for backward compatibility
 
 
-    # ----------------------------------
-    # Notes:
-    #   It is *NOT* Perl-DBI compliant.
-    # ----------------------------------
-
-
 sub new
 {
     my ($n, $self);
@@ -104,8 +100,7 @@ sub new
 sub Close
 {
     my ($self) = shift;
-    &DESTROY($self);
-    return undef;
+    undef $self;
 }
 
 ####
@@ -115,15 +110,15 @@ sub DESTROY
 {
     my ($self) = shift;
 
-    my(@Result) = ODBCDisconnect($self->{'connection'});
-    @Result = processError($self, @Result);
-    if ($Result[0]){
+    my(@Results) = ODBCDisconnect($self->{'connection'});
+    @Results = processError($self, @Results);
+    if ($Results[0]){
         undef $self->{'DSN'};
         undef @{$self->{'fnames'}};
         undef %{$self->{'field'}};
         undef %{$self->{'connection'}};
     }
-    return $Result[0];
+    return $Results[0];
 }
 
 
@@ -155,29 +150,37 @@ sub Data{
         #   Altered by Dave Roth <dave@roth.net> 96.05.07
     my($self) = shift;
     my(@Fields) = @_;
-    my(@Result, $Result, $Field);
+    my(@Results, $Results, $Field);
 
+    if ($self->{'Dirty'}){
+        GetData($self);
+        $self->{'Dirty'} = 1;
+    }
     @Fields = @{$self->{'fnames'}} if (! scalar(@Fields));
     foreach $Field (@Fields) {
         if (wantarray) {
-            push(@Result, data($self, $Field));
+            push(@Results, data($self, $Field));
         } else {
-            $Result .= data($self, $Field);
+            $Results .= data($self, $Field);
         }
     }
-    return wantarray ? @Result : $Result;
+    return wantarray ? @Results : $Results;
 }
 
 sub DataHash{
-    my($self, @Result) = @_;
-    my(%Result, $Element);
-    GetData($self);
-    @Result = @{$self->{'fnames'}} if (! scalar(@Result));
-    foreach $Element (@Result) {
-        $Result{$Element} = data($self, $Element);
+    my($self, @Results) = @_;
+    my(%Results, $Element);
+
+    if ($self->{'Dirty'}){
+        GetData($self);
+        $self->{'Dirty'} = 1;
+    }
+    @Results = @{$self->{'fnames'}} if (! scalar(@Results));
+    foreach $Element (@Results) {
+        $Results{$Element} = data($self, $Element);
     }
 
-    return %Result;
+    return %Results;
 }
 
 ####
@@ -194,24 +197,28 @@ sub fetchrow{
 #   Put a row from an ODBC data set into data buffer
 ####
 sub FetchRow{
-    my ($self, @Result) = @_;
+    my ($self, @Results) = @_;
     my ($item, $num, $sqlcode);
         # Added by JOC 06-APR-96
         #   $num = 0;
     $num = 0;
     undef $self->{'data'};
 
-    @Result = ODBCFetch($self->{'connection'}, @Result);
-    if (! (@Result = processError(-1, @Result))){
+
+    @Results = ODBCFetch($self->{'connection'}, @Results);
+    if (! (@Results = processError(-1, @Results))){
         ####
         #   There should be an innocuous error "No records remain"
         #   This indicates no more records in the dataset
         ####
         return undef;
     }
-#    GetData($self);
-        #   Return the array of field results.
-    return @Result;
+        #   Set the Dirty bit so we will go and extract data via the
+        #   ODBCGetData function. Otherwise use the cache.
+    $self->{'Dirty'} = 1;
+
+        #   Return the array of field Results.
+    return @Results;
 }
 
 sub GetData{
@@ -236,7 +243,7 @@ sub GetData{
 }
 
 ####
-#   See if any more ODBC Result Sets
+#   See if any more ODBC Results Sets
 #		Added by Brian Dunfordshore <Brian_Dunfordshore@bridge.com> 
 #		96.07.10
 ####
@@ -244,7 +251,7 @@ sub MoreResults{
     my ($self) = @_;
 
     my(@Results) = ODBCMoreResults($self->{'connection'});
-    return (processError($self, @Result))[0];
+    return (processError($self, @Results))[0];
 }
 
 ####
@@ -278,8 +285,7 @@ sub TableList{
     }
     undef @Results;
     while (FetchRow($self)){
-        GetData($self);
-        push(@Results, data($self, "TABLE_NAME"));
+        push(@Results, Data($self, "TABLE_NAME"));
     }
     return sort(@Results);
 }
@@ -331,8 +337,8 @@ sub GetConnections{
 ####
 sub SetMaxBufSize{
     my($self, $Size) = @_;
-    my(@Result) = ODBCSetMaxBufSize($self->{'connection'}, $Size);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCSetMaxBufSize($self->{'connection'}, $Size);
+    return (processError($self, @Results))[0];
 }
 
 ####
@@ -340,8 +346,8 @@ sub SetMaxBufSize{
 ####
 sub GetMaxBufSize{
     my($self) = @_;
-    my(@Result) = ODBCGetMaxBufSize($self->{'connection'});
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCGetMaxBufSize($self->{'connection'});
+    return (processError($self, @Results))[0];
 }
 
 
@@ -370,8 +376,8 @@ sub DataSources{
         $DSN = $self;
         $self = 0;
     }
-    my(@Result) = ODBCDataSources($DSN);
-    return (processError($self, @Result));
+    my(@Results) = ODBCDataSources($DSN);
+    return (processError($self, @Results));
 }
 
 ####
@@ -382,8 +388,8 @@ sub Drivers{
     if(! ref $self){
         $self = 0;
     }
-    my(@Result) = ODBCDrivers();
-    return (processError($self, @Result));
+    my(@Results) = ODBCDrivers();
+    return (processError($self, @Results));
 }
 
 ####
@@ -396,8 +402,8 @@ sub RowCount{
         $self = 0;
     }
     if (! $Connection){$Connection = $self->{'connection'};}
-    my(@Result) = ODBCRowCount($Connection);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCRowCount($Connection);
+    return (processError($self, @Results))[0];
 }
 
 ####
@@ -415,8 +421,8 @@ sub GetStmtCloseType{
         $self = 0;
     }
     if (! $Connection){$Connection = $self->{'connection'};}
-    my(@Result) = ODBCGetStmtCloseType($Connection);
-    return (processError($self, @Result));
+    my(@Results) = ODBCGetStmtCloseType($Connection);
+    return (processError($self, @Results));
 }
 
 ####
@@ -436,13 +442,13 @@ sub SetStmtCloseType{
         $self = 0;
     }
     if (! $Connection){$Connection = $self->{'connection'};}
-    my(@Result) = ODBCSetStmtCloseType($Connection, $Type);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCSetStmtCloseType($Connection, $Type);
+    return (processError($self, @Results))[0];
 }
 
 sub ColAttributes{
     my($self, $Type, @Field) = @_;
-    my(%Result, @Result, $Result, $Attrib, $Connection, $Temp);
+    my(%Results, @Results, $Results, $Attrib, $Connection, $Temp);
     if (! ref($self)){
         $Type = $Field;
         $Field = $self;
@@ -451,20 +457,20 @@ sub ColAttributes{
     $Connection = $self->{'connection'};
     if (! scalar(@Field)){ @Field = $self->fieldnames;}
     foreach $Temp (@Field){
-        @Result = ODBCColAttributes($Connection, $Temp, $Type);
-        ($Attrib) = processError($self, @Result);
+        @Results = ODBCColAttributes($Connection, $Temp, $Type);
+        ($Attrib) = processError($self, @Results);
         if (wantarray){
-            $Result{$Temp} = $Attrib;
+            $Results{$Temp} = $Attrib;
         }else{
-            $Result .= "$Temp";
+            $Results .= "$Temp";
         }
     }
-    return wantarray? %Result:$Result;
+    return wantarray? %Results:$Results;
 }
 
 sub GetInfo{
     my($self, $Type) = @_;
-    my($Connection, @Result);
+    my($Connection, @Results);
     if(! ref $self){
         $Type = $self;
         $self = 0;
@@ -472,50 +478,50 @@ sub GetInfo{
     }else{
         $Connection = $self->{'connection'};
     }
-    @Result = ODBCGetInfo($Connection, $Type);
-    return (processError($self, @Result))[0];
+    @Results = ODBCGetInfo($Connection, $Type);
+    return (processError($self, @Results))[0];
 }
 
 sub GetConnectOption{
     my($self, $Type) = @_;
-    my(@Result);
+    my(@Results);
     if(! ref $self){
         $Type = $self;
         $self = 0;
     }
-    @Result = ODBCGetConnectOption($self->{'connection'}, $Type);
-    return (processError($self, @Result))[0];
+    @Results = ODBCGetConnectOption($self->{'connection'}, $Type);
+    return (processError($self, @Results))[0];
 }
 
 sub SetConnectOption{
     my($self, $Type, $Value) = @_;
-    my(@Result, $Result);
+    my(@Results, $Results);
     if(! ref $self){
         $Value = $Type;
         $Type = $self;
         $self = 0;
     }
-    @Result = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
-    $Result = ((processError($self, @Result))[0]);
-    return ($Result)? 1:0;
+    @Results = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
+    $Results = ((processError($self, @Results))[0]);
+    return ($Results)? 1:0;
 }
 
 sub Transact{
     my($self, $Type) = @_;
-    my(@Result);
+    my(@Results);
     if(! ref $self){
         $Type = $self;
         $self = 0;
     }
-    @Result = ODBCTransact($self->{'connection'}, $Type);
-    return (processError($self, @Result))[0];
+    @Results = ODBCTransact($self->{'connection'}, $Type);
+    return (processError($self, @Results))[0];
 }
 
 
 sub SetPos{
-    my($self, @Result) = @_;
-    @Result = ODBCSetPos($self->{'connection'}, @Result);
-    return (processError($self, @Result))[0];
+    my($self, @Results) = @_;
+    @Results = ODBCSetPos($self->{'connection'}, @Results);
+    return (processError($self, @Results))[0];
 }
 
 sub ConfigDSN{
@@ -530,14 +536,14 @@ sub ConfigDSN{
         $Connection = $self->{'connection'};
     }
     my($Driver, @Attributes) = @_;
-    @Result = ODBCConfigDSN($Connection, $Type, $Driver, @Attributes);
-    return (processError($self, @Result))[0];
+    @Results = ODBCConfigDSN($Connection, $Type, $Driver, @Attributes);
+    return (processError($self, @Results))[0];
 }
 
 
 sub Version{
 	my($self, @Packages) = @_;
-	my($Temp, @Results);
+    my($Temp, @Results);
 	if (! ref($self)){
 		push(@Packages, $self);
 	}
@@ -547,12 +553,12 @@ sub Version{
 	}
 	foreach $Temp (@Packages){
 		if ($Temp =~ /pll/i){
-			push(@Results, "ODBC.PM:$Win32::ODBC::Version");
+            push(@Results, "ODBC.PM:$Win32::ODBC::Version");
 		}elsif ($Temp =~ /pm/i){
-			push(@Results, "ODBC.PLL:$ExtVersion");
+            push(@Results, "ODBC.PLL:$ExtVersion");
 		}
 	}
-	return @Results;
+    return @Results;
 }
 
 sub SetConnectOption{
@@ -562,8 +568,8 @@ sub SetConnectOption{
         $Type = $self;
         $self = 0;
     }
-    my(@Result) = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
+    return (processError($self, @Results))[0];
 }
 
 sub GetConnectOption{
@@ -572,8 +578,8 @@ sub GetConnectOption{
         $Type = $self;
         $self = 0;
     }
-    my(@Result) = ODBCGetConnectOption($self->{'connection'}, $Type);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCGetConnectOption($self->{'connection'}, $Type);
+    return (processError($self, @Results))[0];
 }
 
 sub SetStmtOption{
@@ -583,8 +589,8 @@ sub SetStmtOption{
         $Option = $self;
         $self = 0;
     }
-    my(@Result) = ODBCSetStmtOption($self->{'connection'}, $Option, $Value);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCSetStmtOption($self->{'connection'}, $Option, $Value);
+    return (processError($self, @Results))[0];
 }
 
 sub GetStmtOption{
@@ -593,14 +599,14 @@ sub GetStmtOption{
         $Type = $self;
         $self = 0;
     }
-    my(@Result) = ODBCGetStmtOption($self->{'connection'}, $Type);
-    return (processError($self, @Result))[0];
+    my(@Results) = ODBCGetStmtOption($self->{'connection'}, $Type);
+    return (processError($self, @Results))[0];
 }
 
 sub GetFunctions{
-	my($self, @Results)=@_;
-	@Results = ODBCGetFunctions($self->{'connection'}, @Results);
-	return (processError($self, @Results));
+    my($self, @Results)=@_;
+    @Results = ODBCGetFunctions($self->{'connection'}, @Results);
+    return (processError($self, @Results));
 }
 
 sub DropCursor{
@@ -651,7 +657,7 @@ sub updateResults{
 
 sub Debug{
     my($self, $iDebug) = @_;
-    my(@Result);
+    my(@Results);
     if (! ref($self)){
         if (defined $self){
             $iDebug = $self;
@@ -662,11 +668,11 @@ sub Debug{
         $Connection = $self->{'connection'};
     }
     if (defined $iDebug){
-        @Result = ODBCDebug($Connection, $iDebug);
+        @Results = ODBCDebug($Connection, $iDebug);
     }else{
-        @Result = ODBCDebug($Connection);
+        @Results = ODBCDebug($Connection);
     }
-    return (processError($self, @Result))[0];
+    return (processError($self, @Results))[0];
 }
 
 ####
@@ -737,10 +743,10 @@ sub Run{
 ####
 #   Process Errors returned from a call to ODBCxxxx().
 #   It is assumed that the Win32::ODBC function returned the following structure:
-#      ($ErrorNumber, $ResultText, ...)
+#      ($ErrorNumber, $ResultsText, ...)
 #           $ErrorNumber....0 = No Error
 #                           >0 = Error Number
-#           $ResultText.....if no error then this is the first result element.
+#           $ResultsText.....if no error then this is the first Results element.
 #                           if error then this is the error text.
 ####
 sub processError{
@@ -814,7 +820,7 @@ sub ClearError{
 
 sub GetError{
     my($self, $Connection) = @_;
-    my(@Result);
+    my(@Results);
     if (! ref($self)){
         $Connection = $self;
         $self = 0;
@@ -824,8 +830,8 @@ sub GetError{
         }
     }
 
-    @Result = ODBCGetError($Connection);
-    return @Result;
+    @Results = ODBCGetError($Connection);
+    return @Results;
 }
 
 
