@@ -1,0 +1,3 @@
+LIBRARY ODBC
+EXPORTS
+	boot_Win32__ODBC

@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN">
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<HTML>
+
+<!-- ***** Header ***** -->
+<HEAD>
+
+<!-- ***** Title ***** -->
+<TITLE>Win32::ODBC</TITLE>
+</HEAD>
+
+<!-- *********************************************************************** -->
+<BODY>
+
+<!-- ***** Main Heading ***** -->
+<H1 ALIGN=center>Win32::ODBC</H1>
+
+<!-- ***** Table of Contents ***** -->
+<HR ALIGN=center NOSHADE>
+<HR ALIGN=center NOSHADE>
+
+<H2>Contents</H2>
+
+<H3>Part I</H3>
+<UL>
+	<LI><A HREF="odbc.html#ModDesc">Module Description</A>
+	<LI><A HREF="odbc.html#Business">Business Stuff</A>
+	<UL>
+		<LI><A HREF="odbc.html#Copyright">Copyright Notice</A>
+		<LI><A HREF="odbc.html#Disclaimer">Disclaimer</A>
+		<LI><A HREF="odbc.html#GNU-GPL">GNU General Public License</A>
+		<LI><A HREF="odbc.html#LWall-AL">Larry Wall's "Artistic License"</A>
+	</UL>
+	<LI><A HREF="odbc.html#History">Version History</A>
+	<UL>
+		<LI><A HREF="odbc.html#Authors">Author List</A>
+	</UL>
+	<LI><A HREF="odbc.html#Features">Features/Limits</A>
+	<LI><A HREF="odbc.html#Install">Installation Instructions</A>
+	<LI><A HREF="odbc.html#Bugs">Bug Reports</A>
+	<LI><A HREF="odbc.html#Latest">Latest Versions</A>
+	<LI><A HREF="odbc.html#Info">For More Information on Perl</A>
+</UL>
+
+<H3>Part II</H3>
+<UL>
+	<LI><A HREF="object.html#Define">Creating an ODBC Object</A>
+	<LI><A HREF="object.html#Methods">Object Methods</A>
+	<UL>
+		<LI><A HREF="object.html#Catalog">Catalog()</A>
+		<LI><A HREF="object.html#Connection">Connection()</A>
+		<LI><A HREF="object.html#Close">Close()</A>
+		<LI><A HREF="object.html#Data">Data()</A>
+		<LI><A HREF="object.html#DataHash">DataHash()</A>
+		<LI><A HREF="object.html#DataSources">DataSources()</A>
+		<LI><A HREF="object.html#Drivers">Drivers()</A>
+		<LI><A HREF="object.html#DumpData">DumpData()</A>
+		<LI><A HREF="object.html#Error">Error()</A>
+		<LI><A HREF="object.html#FetchRow">FetchRow()</A>
+		<LI><A HREF="object.html#FieldNames">FieldNames()</A>
+		<LI><A HREF="object.html#GetConnections">GetConnections()</A>
+		<LI><A HREF="object.html#GetDSN">GetDSN()</A>
+		<LI><A HREF="object.html#GetStmtCloseType">GetStmtCloseType()</A>
+		<LI><A HREF="object.html#GetMaxBufSize">GetMaxBufSize()</A>
+		<LI><A HREF="object.html#new">new()</A>
+		<LI><A HREF="object.html#RowCount">RowCount()</A>
+		<LI><A HREF="object.html#Run">Run()</A>
+		<LI><A HREF="object.html#SetMaxBufSize">SetMaxBufSize()</A>
+		<LI><A HREF="object.html#SetStmtCloseType">SetStmtCloseType()</A>
+		<LI><A HREF="object.html#Shutdown">Shutdown()</A>
+		<LI><A HREF="object.html#Sql">Sql()</A>
+		<LI><A HREF="object.html#TableList">TableList()</A>
+	</UL>
+	<LI><A HREF="object.html#Examples">Examples</A>
+</UL>
+<P>
+
+<!-- ***** Description ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="ModDesc">Module Description</A></H2>
+
+<P>
+
+<!-- ***** Business Stuff ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="Business">Business Stuff</A></H2>
+ODBC extension for Win32 PERL<BR>
+Version 96.05.08<BR>
+by Dave Roth (rothd@infowire.com)<BR>
+<BR>
+Based on code by Dan DeMaggio (dmag@umich.edu) -- Thanks Dan!<BR>
+<P>
+
+<H3><A NAME="Copyright">Copyright</A></H3>
+Copyright &copy; 1996 Dave Roth.  All rights reserved.<BR>
+This program is free software; you can redistribute it or modify it under the
+same terms as PERL itself.
+<P>
+
+<H3><A NAME="Disclaimer">Disclaimer</A></H3>
+<EM>
+I do not guarantee ANYTHING with this package.  If you use it you are doing so
+AT YOUR OWN RISK!  I may or may not support this depending on my time schedule
+and I am neither an SQL or ODBC guru so do not ask me questions regarding them!
+</EM>
+<P>
+
+<H3><A NAME="GNU-GPL">GNU General Public License</A></H3>
+<EM>Coming soon....</EM><P>
+
+<H3><A NAME="LWall-AL">Larry Wall's "Artistic License"</A></H3>
+<A HREF="http://www.perl.com/perl/misc/Artistic.html">Artistic License</A><P>
+
+<!-- ***** Version History ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="History">Version History</A></H2>
+<STRONG>ODBC.PM</STRONG><BR>
+<TABLE BORDER=1>
+	<TR><TH>Date</TH><TH>Changes</TH></TR>
+	<TR><TD>96.03.27</TD><TD>Initial Release (rothd)</TD></TR>
+	<TR><TD ROWSPAN=2>96.04.08</TD>
+		<TD>Changed <A HREF="object.html#Data">Data()</A> to accept an array of
+		field names, returning an array or scalar (joc)</TD></TR>
+		<TR><TD>Various bug fixes (joc)</TD></TR>
+	<TR><TD>96.04.10</TD>
+		<TD>Fixed the <A HREF="object.html#RowCount">RowCount()</A> to default
+		to the current connection (droth)</TD></TR>
+	<TR><TD>96.04.15</TD>
+		<TD>Changed version numbers to a date format (rothd)</TD></TR>
+	<TR><TD>96.05.07</TD>
+		<TD>Fixed <A HREF="object.html#Data">Data()</A>: If returning an array,
+		the array consisted of the requested fieldnames + the values. Now only
+		returns the values. Thanks to Dan Westerlund
+		&lt;westerlund@dkraft.se&gt;! (rothd)</TD></TR>
+</TABLE>
+<P>
+
+<STRONG>ODBC.PLL</STRONG><BR>
+<TABLE BORDER=1>
+	<TR><TH>Date</TH><TH>Changes</TH></TR>
+	<TR><TD ROWSPAN=2>96.04.10</TD>
+		<TD>Fixed a "memory bug": we were using SQL_CLOSE when closing an ODBC
+		statement. This kept the cursor alive in memory so it can be cached in
+		the event the same SQL statement is issued.  We are now using SQL_DROP.
+		This may lessen speed if the same SQL statements are issued again and
+		again per connection. (rothd)</TD></TR>
+		<TR><TD>Cleaned up some code. (rothd)</TD></TR>
+	<TR><TD ROWSPAN=2>96.04.12</TD>
+		<TD>Added <A HREF="object.html#GetStmtCloseType">GetStmtCloseType()</A>
+		and <A HREF="object.html#SetStmtCloseType">SetStmtCloseType()</A>
+		functions. (rothd)</TD></TR>
+		<TR><TD>Added some constants. (rothd)</TD></TR>
+	<TR><TD>96.04.13</TD>
+		<TD>** We now are trying to include a version for builds up to and
+		including 105 and another for builds 106 and greater (for now).</TD></TR>
+	<TR><TD ROWSPAN=2>96.04.15</TD>
+		<TD>Fix Bug in ODBCFetchRow(): when retrieving a field with a NULL
+		value the value from the previous field was reported. (jmk)</TD></TR>
+		<TR><TD>Changed version numbers to a date format.</TD></TR>
+	<TR><TD>96.04.22</TD>
+		<TD>Fix the SDWORD wrap-around bug in ODBCFetchRow(): when a column of
+		size  2147483647 adding 1 (for a NULL byte in szBuf) yields -2147483648
+		(not easy to "net UCHAR (-2147483648)"!!) (jmk)</TD></TR>
+	<TR><TD>96.04.22</TD>
+		<TD>Inspired by Jutta, I have increased the max limit for SetMaxBufSize()
+		to 2,147,483,647 bytes. (rothd)</TD></TR>
+	<TR><TD>96.05.03</TD>
+		<TD>Set the lowest allocated char array to be 20 bytes in
+		ODBCFetchRow().  Evidentally sometimes the ODBC manager will report too
+		few chars that are needed to represent an autonumber field. (rothd)</TD></TR>
+	<TR><TD>96.05.08</TD>
+		<TD>Convert all results from ODBCTableList() to uppercase since different
+		  ODBC drivers impliment this differently (some uppercase some lower).
+		  Thanks again to Jutta M. Klebe. (rothd)<BR>
+		  *** This patch is open for suggestions!!! ***</TD></TR>
+</TABLE>
+<P>
+
+<STRONG><A NAME="Authors">Author List</A></STRONG><BR>
+<TABLE BORDER=1>
+	<TR><TH>Abbreviation</TH><TH>Name</TH><TH>EMail</TH></TR>
+	<TR><TD>rothd</TD><TD>Dave Roth</TD><TD>rothd@infowire.com</TD></TR>
+	<TR><TD>joc</TD><TD>Joe Casadonte</TD><TD>joc@netaxs.com</TD></TR>
+	<TR><TD>jmk</TD><TD>Jutta M. Klebe</TD><TD>jmk@exc.bybyte.de</TD></TR>
+</TABLE>
+<P>
+
+<!-- ***** Features/Limits ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="Features">Features/Limits</A></H2>
+
+<H3>Features</H3>
+<UL>
+	<LI>The number of ODBC connections is limited only by memory and ODBC
+		itself.
+	<LI>The working limit to the size of a field is 10240 bytes.  This
+		can be raised (if needed) to a maximum of2147483647 bytes.  This
+		maximum limit can be raised only by recompiling.
+	<LI>Connections can be opened using a DSN or connection string.
+	<LI>Connections can be opened and closed in any order (but they cannot be
+		closed before they are opened -- maybe next release)
+</UL>
+<P>
+
+<H3>Limits</H3>
+<UL>
+	<LI>If the account that the process runs under does not have write
+		permission on the default directory (for the process, not the ODBC DSN)
+		you will probably get a run-time error during an SQLConnection().
+		I don't think that this is a problem with the code, more like ODBC.
+		This happens because some ODBC drivers need to write a temporary file.
+		I noticed this using the MS Jet Engine (Access Driver).
+	<LI>This has not been optimized for speed nor optimized for memory
+		consumption.  This may run into memory bloat.
+</UL>
+<P>
+
+<!-- ***** Installation Instructions ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="Install">Installation Instructions</A></H2>
+<OL>
+	<LI>Copy the ODBC.PM file into the \PERL\LIB\WIN32 directory.
+	<LI>Copy the ODBC10x.PLL file into the \PERL\LIB\AUTO\WIN32\ODBC directory.
+		This is either ODBC105.PLL (for versions of Perl 105 or before) or
+		ODBC106.PLL (for versions of Perl 106 or later), renaming the correct
+		file to ODBC.PLL (run "perl -v" to check which version of perl you
+		have).
+	<LI>Define a DSN (Data Source Name) and ensure that you have everything
+		you need to use it normally (ODBC drivers, database files, etc.)
+	<LI>You are now ready to ODBC all over town!
+</OL>
+<P>
+
+<!-- ***** Bug reports ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="Bugs">Bug Reports</A></H2>
+Please send bug reports to <A HREF="mailto:rothd@infowire.com">Dave Roth</A>.
+Include the following (if appropriate):<BR>
+<UL>
+	<LI>Versions of both Perl (perl -v) and ODBC
+	<LI>ODBC data source type (Oracle, Access, etc)
+	<LI>Short description of the problem
+	<LI>Small code example <EM>which you have tested to ensure that it reproduces
+		the problem as described</EM>
+	<LI>Output of the code exmaple
+</UL>
+<P>
+
+<!-- ***** Latest Versions ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="Latest">Obtaining the Latest Versions</A></H2>
+<UL>
+	<LI>Win32::ODBC - <A HREF="ftp://ftp.infowire.com/pub/ntperl/odbc.zip">ftp.infowire.com</A>
+	<LI>Perl for Win32 - <A HREF="ftp://ftp.perl.hip.com/ntperl/perl5.001m/CurrentBuild/">ftp.hip.com</A>
+</UL>
+
+<!-- ***** More Information ***** -->
+<HR ALIGN=center>
+
+<H2><A NAME="Info">For More Information on Perl</A></H2>
+<STRONG>CPAN - Comprehensive Perl Archive Network</STRONG> - Selected Sites<BR>
+<UL>
+	<LI><A HREF="ftp://ftp.metronet.com/pub/perl/">ftp.metronet.com</A> (Texas)
+	<LI><A HREF="ftp://ftp.cdrom.com/pub/perl/CPAN/">ftp.cdrom.com </A> (California)
+	<LI><A HREF="ftp://ftp.cis.ufl.edu/pub/perl/CPAN/">ftp.cis.ufl.edu</A> (Florida)
+	<BR><BR>
+
+	<LI><A HREF="ftp://mango.pinc.com/pub/mirrors/CPAN/">mango.pinc.com</A> (British Columbia)
+	<BR><BR>
+	
+	<LI><A HREF="ftp://ftp.funet.fi/pub/languages/perl/CPAN/">ftp.funet.fi</A> (Finland) [Master CPAN site]
+	<LI><A HREF="ftp://ftp.cs.ruu.nl/pub/PERL/CPAN/">ftp.cs.ruu.nl</A> (The Netherlands)
+	<LI><A HREF="ftp://ftp.sunet.se/pub/lang/perl/CPAN/">ftp.sunet.se</A> (Sweden)
+	<LI><A HREF="ftp://ftp.demon.co.uk/pub/mirrors/perl/CPAN/">ftp.demon.co.uk</A> (United Kindom)
+	<BR><BR>
+	
+	<LI><A HREF="ftp://coombs.anu.edu.au/pub/perl/CPAN/">coombs.anu.edu.au</A> (Australia)
+</UL>
+
+<!-- ***** Closing ***** -->
+<HR ALIGN=center NOSHADE>
+
+This page maintined by Joe Casadonte.  Please let me if something is wrong or
+does not make sense.  Send these or other comments to:
+<A HREF="mailto:joc@netaxs.com">joc@netaxs.com</A>.<P>
+
+<ADDRESS>Copyright &copy; Dave Roth and Joseph L. Casadonte Jr. 1996.  All rights reserved.</ADDRESS>
+<ADDRESS>Win32::ODBC / 07 May 1996 / joc@netaxs.com</ADDRESS>
+
+</BODY>
+</HTML>
+
+<!-- *********************************************************************** -->
+<!-- *****  EOF  *****  EOF  *****  EOF  *****  EOF  ******  EOF  ********** -->
