@@ -5,9 +5,8 @@ package Win32::ODBC;
 #       |                                                          |
 #       |                     ODBC.PM package                      |
 #       |                     ---------------                      |
-#       |                    Release v96.10.25                     |
 #       |                                                          |
-#       |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
+#       | Copyright (c) 1996, 1997 Dave Roth. All rights reserved. |
 #       |   This program is free software; you can redistribute    |
 #       | it and/or modify it under the same terms as Perl itself. |
 #       |                                                          |
@@ -26,10 +25,13 @@ require Exporter;
 require DynaLoader;
 
 $ODBCPackage = "Win32::ODBC";
-$ODBCPackage::Version = 961025;
+$ODBCPackage::Version = 970208;
 $::ODBC = $ODBCPackage;
+$CacheConnection = 0;
+
     #   Reserve ODBC in the main namespace for US!
 *ODBC::=\%Win32::ODBC::;
+
 
 @ISA= qw( Exporter DynaLoader );
     # Items to export into callers namespace by default. Note: do not export
@@ -39,6 +41,20 @@ $::ODBC = $ODBCPackage;
             ODBC_ADD_DSN
             ODBC_REMOVE_DSN
             ODBC_CONFIG_DSN
+
+            SQL_DONT_CLOSE
+            SQL_DROP
+            SQL_CLOSE
+            SQL_UNBIND
+            SQL_RESET_PARAMS
+
+            SQL_FETCH_NEXT
+            SQL_FETCH_FIRST
+            SQL_FETCH_LAST
+            SQL_FETCH_PRIOR
+            SQL_FETCH_ABSOLUTE
+            SQL_FETCH_RELATIVE
+            SQL_FETCH_BOOKMARK
 
             SQL_COLUMN_COUNT
             SQL_COLUMN_NAME
@@ -80,7 +96,11 @@ sub new
     my ($DSN) = shift;
     my (@Results) = @_;
 
-    @Results = ODBCConnect($DSN, @Results);
+    if (ref $DSN){
+        @Results = ODBCClone($DSN->{'connection'});
+    }else{
+        @Results = ODBCConnect($DSN, @Results);
+    }
     @Results = processError(-1, @Results);
     if (! scalar(@Results)){
         return undef;
@@ -99,8 +119,10 @@ sub new
 ####
 sub Close
 {
-    my ($self) = shift;
-    undef $self;
+    my ($self, $Result) = shift;
+    $Result = DESTROY($self);
+    $self->{'connection'} = -1;
+    return $Result;
 }
 
 ####
@@ -109,14 +131,16 @@ sub Close
 sub DESTROY
 {
     my ($self) = shift;
-
-    my(@Results) = ODBCDisconnect($self->{'connection'});
-    @Results = processError($self, @Results);
-    if ($Results[0]){
-        undef $self->{'DSN'};
-        undef @{$self->{'fnames'}};
-        undef %{$self->{'field'}};
-        undef %{$self->{'connection'}};
+    my (@Results) = (0);
+    if($self->{'connection'} > -1){
+        @Results = ODBCDisconnect($self->{'connection'});
+        @Results = processError($self, @Results);
+        if ($Results[0]){
+            undef $self->{'DSN'};
+            undef @{$self->{'fnames'}};
+            undef %{$self->{'field'}};
+            undef %{$self->{'connection'}};
+        }
     }
     return $Results[0];
 }
@@ -129,16 +153,10 @@ sub sql{
 ####
 #   Submit an SQL Execute statement for processing
 ####
-sub Sql
-{
+sub Sql{
     my ($self, $Sql, @Results) = @_;
-
-    undef %{$self->{'field'}};
-
     @Results = ODBCExecute($self->{'connection'}, $Sql);
-    @Results = processError($self, @Results);
-    return $self->{'ErrNum'} if (! scalar(@Results));
-    return updateResults($self, 0, @Results);
+    return updateResults($self, @Results);
 }
 
 ####
@@ -154,7 +172,7 @@ sub Data{
 
     if ($self->{'Dirty'}){
         GetData($self);
-        $self->{'Dirty'} = 1;
+        $self->{'Dirty'} = 0;
     }
     @Fields = @{$self->{'fnames'}} if (! scalar(@Fields));
     foreach $Field (@Fields) {
@@ -173,7 +191,7 @@ sub DataHash{
 
     if ($self->{'Dirty'}){
         GetData($self);
-        $self->{'Dirty'} = 1;
+        $self->{'Dirty'} = 0;
     }
     @Results = @{$self->{'fnames'}} if (! scalar(@Results));
     foreach $Element (@Results) {
@@ -206,7 +224,7 @@ sub FetchRow{
 
 
     @Results = ODBCFetch($self->{'connection'}, @Results);
-    if (! (@Results = processError(-1, @Results))){
+    if (! (@Results = processError($self, @Results))){
         ####
         #   There should be an innocuous error "No records remain"
         #   This indicates no more records in the dataset
@@ -233,9 +251,9 @@ sub GetData{
         #   This is a special case. Do not call processResults
         ####
     ClearError();
-    foreach $item (@Results){
-        $item =~ s/ +$//; # HACK
-        $self->{'data'}->{ ${$self->{'fnames'}}[$num] } = $item;
+    foreach (@Results){
+        s/ +$//; # HACK
+        $self->{'data'}->{ ${$self->{'fnames'}}[$num] } = $_;
         $num++;
     }
         #   return is a hack to interface with a assoc array.
@@ -258,11 +276,11 @@ sub MoreResults{
 #   Retrieve the catalog from the current DSN
 #	NOTE: All Field names are uppercase!!!
 ####
-sub Catalog
-{
+sub Catalog{
     my ($self) = shift;
     my ($Qualifier, $Owner, $Name, $Type) = @_;
     my (@Results) = ODBCTableList($self->{'connection'}, $Qualifier, $Owner, $Name, $Type);
+
         #   If there was an error return 0 else 1
     return (updateResults($self, @Results) != 1);
 }
@@ -495,16 +513,15 @@ sub GetConnectOption{
 
 sub SetConnectOption{
     my($self, $Type, $Value) = @_;
-    my(@Results, $Results);
     if(! ref $self){
         $Value = $Type;
         $Type = $self;
         $self = 0;
     }
-    @Results = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
-    $Results = ((processError($self, @Results))[0]);
-    return ($Results)? 1:0;
+    my(@Results) = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
+    return (processError($self, @Results))[0];
 }
+
 
 sub Transact{
     my($self, $Type) = @_;
@@ -521,6 +538,7 @@ sub Transact{
 sub SetPos{
     my($self, @Results) = @_;
     @Results = ODBCSetPos($self->{'connection'}, @Results);
+    $self->{'Dirty'} = 1;
     return (processError($self, @Results))[0];
 }
 
@@ -561,26 +579,6 @@ sub Version{
     return @Results;
 }
 
-sub SetConnectOption{
-    my($self, $Type, $Value) = @_;
-    if(! ref $self){
-        $Value = $Type;
-        $Type = $self;
-        $self = 0;
-    }
-    my(@Results) = ODBCSetConnectOption($self->{'connection'}, $Type, $Value);
-    return (processError($self, @Results))[0];
-}
-
-sub GetConnectOption{
-    my($self, $Type) = @_;
-    if(! ref $self){
-        $Type = $self;
-        $self = 0;
-    }
-    my(@Results) = ODBCGetConnectOption($self->{'connection'}, $Type);
-    return (processError($self, @Results))[0];
-}
 
 sub SetStmtOption{
     my($self, $Option, $Value) = @_;
@@ -627,6 +625,12 @@ sub GetCursorName{
     return (processError($self, @Results))[0];
 }
 
+sub GetSQLState{
+    my($self) = @_;
+    my(@Results) = ODBCGetSQLState($self->{'connection'});
+    return (processError($self, @Results))[0];
+}
+
 
 # ----------- R e s u l t   P r o c e s s i n g   F u n c t i o n s ----------
 ####
@@ -639,7 +643,7 @@ sub updateResults{
 
     ClearError($self);
     if ($Error){
-        SetError($self, $Error, $Results[0]);
+        SetError($self, $Results[0], $Results[1]);
         return ($Error);
     }
 
@@ -656,10 +660,11 @@ sub updateResults{
 # ----------------- D e b u g g i n g   F u n c t i o n s --------------------
 
 sub Debug{
-    my($self, $iDebug) = @_;
+    my($self, $iDebug, $File) = @_;
     my(@Results);
     if (! ref($self)){
         if (defined $self){
+            $File = $iDebug;
             $iDebug = $self;
         }
         $Connection = 0;
@@ -667,11 +672,9 @@ sub Debug{
     }else{
         $Connection = $self->{'connection'};
     }
-    if (defined $iDebug){
-        @Results = ODBCDebug($Connection, $iDebug);
-    }else{
-        @Results = ODBCDebug($Connection);
-    }
+    push(@Results, ($Connection, $iDebug));
+    push(@Results, $File) if ($File ne "");
+    @Results = ODBCDebug(@Results);
     return (processError($self, @Results))[0];
 }
 
@@ -694,7 +697,7 @@ sub DumpData {
             $goo .= " ";
         }
         print "\n$goo\n";
-        while ($self->FetchRow){
+        while ($self->FetchRow()){
             foreach $f ($self->FieldNames){
                 print $self->data($f) . " ";
             }
@@ -769,7 +772,8 @@ sub Error{
     my($self) = @_;
     if(ref($self)){
         if($self->{'ErrNum'}){
-            return (wantarray)? ($self->{'ErrNum'}, $self->{'ErrText'}, $self->{'connection'}):"[$self->{'ErrNum'}] [$self->{'connection'}] \"$self->{'ErrText'}\"";
+            my($State) = ODBCGetSQLState($self->{'connection'});
+            return (wantarray)? ($self->{'ErrNum'}, $self->{'ErrText'}, $self->{'connection'}, $State) :"[$self->{'ErrNum'}] [$self->{'connection'}] [$State] \"$self->{'ErrText'}\"";
         }
     }elsif ($ErrNum){
         return (wantarray)? ($ErrNum, $ErrText, $ErrConn):"[$ErrNum] [$ErrConn] \"$ErrText\"";
@@ -867,6 +871,16 @@ sub AUTOLOAD {
     }
     eval "sub $AUTOLOAD { $val }";
     goto &$AUTOLOAD;
+}
+
+
+    #   --------------------------------------------------------------
+    #
+    #
+    #   Make sure that we shutdown ODBC and free memory even if we are
+    #   using perlis.dll on Win32 platform!
+END{
+#    ODBCShutDown() unless $CacheConnection;
 }
 
 

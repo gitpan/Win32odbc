@@ -45,7 +45,7 @@
     if (!($DSN = $ARGV[0])){
         $DSN = $TempDSN;
     }
-    $MaxRows = 15 unless defined ($MaxRows = $ARGV[1]);
+    $MaxRows = 8 unless defined ($MaxRows = $ARGV[1]);
 
     $DriverType = "Microsoft Access Driver (*.mdb)";
     $Desc = "Description=The Win32::ODBC Test DSN for Perl";
@@ -392,11 +392,7 @@
         $Failed{'Test 10'} = "Sql(): " . $O->Error();
     }
 
-        #   Either $O->Close() or undef $O will work just fine.
-$O->Debug(1);
-Win32::ODBC::Debug(0, 1);
     $O->Close();
-#    undef $O;
 
 ####
 #   T E S T 11

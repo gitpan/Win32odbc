@@ -6,7 +6,7 @@
         |                                                          |
         |            by Dave Roth <rothd@roth.net>                 |
         |                                                          |
-        |                  version v961025                         |
+        |                  version v961026                         |
         |                                                          |
         |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
         |   This program is free software; you can redistribute    |
@@ -1621,81 +1621,88 @@ long constant(CPerl* pPerl, char *name)
 
 				case 'D':
 					if(strEQ(name, "SQL_DATABASE_NAME"))
-					#ifdef SQL_DATABASE_NAME
-						return SQL_DATABASE_NAME;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DATABASE_NAME
+							return SQL_DATABASE_NAME;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DATA_AT_EXEC"))
-					#ifdef SQL_DATA_AT_EXEC
-						return SQL_DATA_AT_EXEC;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DATA_AT_EXEC
+							return SQL_DATA_AT_EXEC;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DATA_SOURCE_NAME"))
-					#ifdef SQL_DATA_SOURCE_NAME
-						return SQL_DATA_SOURCE_NAME;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DATA_SOURCE_NAME
+							return SQL_DATA_SOURCE_NAME;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DATA_SOURCE_READ_ONLY"))
-					#ifdef SQL_DATA_SOURCE_READ_ONLY
-						return SQL_DATA_SOURCE_READ_ONLY;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DATA_SOURCE_READ_ONLY
+							return SQL_DATA_SOURCE_READ_ONLY;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DATE"))
-					#ifdef SQL_DATE
-						return SQL_DATE;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DATE
+							return SQL_DATE;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DBMS_NAME"))
-					#ifdef SQL_DBMS_NAME
-						return SQL_DBMS_NAME;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DBMS_NAME
+							return SQL_DBMS_NAME;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DBMS_VER"))
-					#ifdef SQL_DBMS_VER
-						return SQL_DBMS_VER;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DBMS_VER
+							return SQL_DBMS_VER;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DECIMAL"))
-					#ifdef SQL_DECIMAL
-						return SQL_DECIMAL;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DECIMAL
+							return SQL_DECIMAL;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DEFAULT_PARAM"))
-					#ifdef SQL_DEFAULT_PARAM
-						return SQL_DEFAULT_PARAM;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DEFAULT_PARAM
+							return SQL_DEFAULT_PARAM;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DEFAULT_TXN_ISOLATION"))
-					#ifdef SQL_DEFAULT_TXN_ISOLATION
-						return SQL_DEFAULT_TXN_ISOLATION;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DEFAULT_TXN_ISOLATION
+							return SQL_DEFAULT_TXN_ISOLATION;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DELETE"))
-					#ifdef SQL_DELETE
-						return SQL_DELETE;
-					#else
-						goto not_there;
-					#endif
+						#ifdef SQL_DELETE
+							return SQL_DELETE;
+						#else
+							goto not_there;
+						#endif
+	
+					if(strEQ(name, "SQL_DONT_CLOSE"))
+						#ifdef SQL_DONT_CLOSE
+							return SQL_DONT_CLOSE;
+						#else
+							goto not_there;
+						#endif
 
 					if(strEQ(name, "SQL_DOUBLE"))
 					#ifdef SQL_DOUBLE

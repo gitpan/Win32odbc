@@ -1,19 +1,17 @@
 
+
         +==========================================================+
         |                                                          |
         |              ODBC extension for Win32 Perl               |
+        |                                                          |
+        |                     ODBC.PM package                      |
+        |                                                          |
         |              -----------------------------               |
         |                                                          |
         |              by Dave Roth <rothd@roth.net>               |
         |                                                          |
-        |                     version v961025                      |
         |                                                          |
-        |                                                          |
-        |                     ODBC.PM package                      |
-        |                     ---------------                      |
-        |                     Release v961025                      |
-        |                                                          |
-        |    Copyright (c) 1996 Dave Roth. All rights reserved.    |
+        |  Copyright (c) 1996-1997 Dave Roth. All rights reserved. |
         |   This program is free software; you can redistribute    |
         | it and/or modify it under the same terms as Perl itself. |
         |                                                          |
@@ -28,7 +26,6 @@
     ---------------------------------------------------------------------
         CHECK OUT THE FAQ!!! HTTP://WWW.ROTH.NET/ODBC/ODBCFAQ.HTM
     ---------------------------------------------------------------------
-
 
  This is a hack of Dan DeMaggio's <dmag@umich.edu> NTXS.C ODBC implimentation.
  I have recoded and restructered most of it including most of the ODBC.PM
@@ -63,7 +60,12 @@ ODBC.PM HISTORY:
           to go to ODBCGetData() or use the namespace for field data.
 96.10.25 Dave Roth <rothd@roth.net>
          -Added ODBC:: reference. Now you can access constants by ODBC::xxx.
-
+96.10.26 Jutta M. Klebe <jmk@exc.bybyte.de>
+         -The Dirty flag was not reset in Data() & DataHash().
+97.01.04 Dave Roth <rothd@roth.net>
+		 - Durring the closing of the module it calls new function ODBCShutDown().
+97.02.08 Dave Roth <rothd@roth.net>
+         - Corrected Error reporting bug.
 
 ODBC.PLL HISTORY:
 ----------------
@@ -132,5 +134,27 @@ ODBC.PLL HISTORY:
          - SetStmtOption()
          - Transact()
          - Support for all ODBC/SQL constants.
+96.10.26 Jutta M. Klebe <jmk@exc.bybyte.de>
+		 - Correct GetData() returning NULL values (again).
+97.01.04 Dave Roth <rothd@roth.net>
+		 - Now using a Multi-threading aware OOP model.
+		 - Optimized some functions.
+		 - Added:
+		   ODBCClone		
+		   ODBCGetSQLState
+		   ODBCGetStats	
+		   ODBCShutDown() -- for correct memory deallocation when used with
+		                     perlis.dll (win32 platform). 
+97.02.08 Dave Roth <rothd@roth.net>
+		 - Fixed Error reporting which broke a version or two ago.
+		 - Fixed (hopefully) the nasty binary NULL bug returning char#255's.
+		 - Removed non-necessary debugging routines for release versions.
+		 - Consolidated Get/SetSmtpOptions into one routine.
+
+
+
+
+
+
 
         
